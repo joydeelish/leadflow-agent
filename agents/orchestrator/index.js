@@ -1,35 +1,44 @@
 // LeadFlow Orchestrator Agent
-// Receives leads, coordinates specialist agents, settles payments on Arc
+// Routes leads through specialist agents using Arc Gateway x402 nanopayments
+// Each agent handoff costs $0.01 USDC settled on Arc Testnet
 
-const { enrichLead } = require("../enrichment");
-const { scoreLead } = require("../scoring");
-const { pay } = require("../../payments/arc");
+import { pay } from "../../payments/arc.js";
 
-const ENRICHMENT_COST = 0.01;   // USDC
-const SCORING_COST = 0.01;       // USDC
-const QUALIFY_THRESHOLD = 70;    // score out of 100
+const QUALIFY_THRESHOLD = 70; // score out of 100
 
-async function processLead(lead) {
-  console.log(`[Orchestrator] Processing lead: ${lead.email}`);
+// Agent endpoint URLs (override via .env for production)
+const ENRICHMENT_URL = process.env.ENRICHMENT_AGENT_URL || "http://localhost:3001/enrich";
+const SCORING_URL    = process.env.SCORING_AGENT_URL    || "http://localhost:3002/score";
 
-  // Step 1: Pay enrichment agent and get enriched data
-  await pay(process.env.ENRICHMENT_AGENT_WALLET, ENRICHMENT_COST);
-  const enriched = await enrichLead(lead);
-  console.log(`[Orchestrator] Lead enriched`, enriched);
+/**
+ * Process a raw lead through the full payment-gated pipeline.
+ * Total cost per lead: ~$0.02 USDC in agent fees.
+ * Revenue per qualified lead: $0.50–$2.00 USDC from business client.
+ *
+ * @param {object} lead - { name, email, phone, message, location, ... }
+ * @returns {object} - { qualified, score, tier, data }
+ */
+export async function processLead(lead) {
+  console.log(`
+[Orchestrator] ── New lead: ${lead.email} ──`);
 
-  // Step 2: Pay scoring agent and get score
-  await pay(process.env.SCORING_AGENT_WALLET, SCORING_COST);
-  const { score, reason } = await scoreLead(enriched);
-  console.log(`[Orchestrator] Lead scored: ${score}/100 — ${reason}`);
+  // Step 1: Pay enrichment agent $0.01 USDC → get enriched profile
+  console.log("[Orchestrator] Step 1: Paying Enrichment Agent...");
+  const enriched = await pay(ENRICHMENT_URL, 0.01);
+  console.log("[Orchestrator] Enrichment complete ✓");
+
+  // Step 2: Pay scoring agent $0.01 USDC → get qualification score
+  console.log("[Orchestrator] Step 2: Paying Scoring Agent...");
+  const { score, reason, tier } = await pay(SCORING_URL, 0.01);
+  console.log(`[Orchestrator] Score: ${score}/100 (${tier})`);
 
   if (score >= QUALIFY_THRESHOLD) {
-    console.log(`[Orchestrator] Lead qualified. Delivering to business.`);
-    // TODO: deliver to WhatsApp / CRM + charge business wallet
-    return { qualified: true, score, data: enriched };
+    console.log("[Orchestrator] ✅ Lead QUALIFIED — delivering to business");
+    // TODO: charge business wallet $0.50–$2 USDC via Arc
+    // TODO: send to WhatsApp / CRM
+    return { qualified: true, score, tier, reason, data: enriched };
   }
 
-  console.log(`[Orchestrator] Lead did not qualify (score: ${score})`);
-  return { qualified: false, score };
+  console.log(`[Orchestrator] ❌ Lead did not qualify (score: ${score}, threshold: ${QUALIFY_THRESHOLD})`);
+  return { qualified: false, score, tier, reason };
 }
-
-module.exports = { processLead };
