@@ -1,25 +1,48 @@
-// Scoring Agent
-// Takes enriched lead data and returns a qualification score 0-100
+// Scoring Agent — Seller Side
+// Exposes a paid endpoint at POST /score (price: $0.01 USDC)
+// Payment settled via Arc Gateway x402 nanopayments
 
-const Anthropic = require("@anthropic-ai/sdk");
-const client = new Anthropic();
+import express from "express";
+import Anthropic from "@anthropic-ai/sdk";
+import { createAgentGateway } from "../../payments/gatewayMiddleware.js";
 
-async function scoreLead(enrichedLead) {
-  const prompt = `You are a lead qualification expert for real estate businesses.
-Score this lead from 0-100 based on how likely they are to convert.
-Return ONLY valid JSON: { "score": number, "reason": string }
+const app = express();
+app.use(express.json());
+
+const gateway = createAgentGateway("SCORING_AGENT_WALLET");
+const anthropic = new Anthropic();
+
+/**
+ * POST /score — payment-gated lead scoring endpoint
+ * Accepts enriched lead data and returns a qualification score (0-100).
+ * Price: $0.01 USDC per call, settled on Arc Testnet.
+ */
+app.post("/score", gateway.require("$0.01"), async (req, res) => {
+  const enrichedLead = req.body;
+  console.log(`[Scoring] Scoring lead: ${enrichedLead.email} | Paid by: ${req.payment?.payer}`);
+
+  const prompt = `You are a lead qualification expert for real estate businesses in Nigeria.
+Score this lead from 0 to 100 based on likelihood to convert to a property purchase.
+Consider: budget signals, company size, location, engagement, and intent.
+Return ONLY valid JSON with no extra text: { "score": number, "reason": string, "tier": "hot"|"warm"|"cold" }
 
 Lead data:
 ${JSON.stringify(enrichedLead, null, 2)}`;
 
-  const response = await client.messages.create({
+  const response = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 256,
     messages: [{ role: "user", content: prompt }],
   });
 
-  const raw = response.content[0].text.trim();
-  return JSON.parse(raw);
-}
+  const result = JSON.parse(response.content[0].text.trim());
+  console.log(`[Scoring] Score: ${result.score}/100 (${result.tier}) — ${result.reason}`);
+  res.json(result);
+});
 
-module.exports = { scoreLead };
+const PORT = process.env.SCORING_PORT || 3002;
+app.listen(PORT, () => {
+  console.log(`[Scoring Agent] Running on port ${PORT} — payment: $0.01 USDC/call`);
+});
+
+export { app };
