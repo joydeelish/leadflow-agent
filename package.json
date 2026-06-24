@@ -2,15 +2,24 @@
   "name": "leadflow-agent",
   "version": "0.1.0",
   "description": "AI lead qualification agent with Arc USDC micro-payments",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "start:enrichment": "node agents/enrichment/index.js",
+    "start:scoring": "node agents/scoring/index.js",
+    "start:all": "concurrently \"npm run start:enrichment\" \"npm run start:scoring\" \"npm start\"",
+    "dev": "nodemon index.js",
+    "setup:wallet": "node scripts/setupWallet.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.20.0",
+    "@circle-fin/x402-batching": "latest",
+    "@x402/core": "latest",
+    "@x402/evm": "latest",
+    "viem": "^2.0.0",
     "express": "^4.18.0",
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.0",
+    "concurrently": "^8.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.0"
