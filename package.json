@@ -12,7 +12,7 @@
     "setup:wallet": "node scripts/setupWallet.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.20.0",
+    "openai": "^4.0.0",
     "@circle-fin/x402-batching": "latest",
     "@x402/core": "latest",
     "@x402/evm": "latest",
