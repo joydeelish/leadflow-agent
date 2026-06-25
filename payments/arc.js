@@ -1,5 +1,6 @@
 // Arc Payment Module - Buyer Side
 // Uses Circle Gateway x402 nanopayments for gas-free USDC settlement on Arc Testnet
+// Docs: https://www.npmjs.com/package/@circle-fin/x402-batching
 
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
@@ -26,61 +27,51 @@ function getClient() {
 }
 
 /**
- * Pay an agent for a service via Arc Gateway x402 nanopayment.
- * Sends the request directly - the agent returns 402 if payment is needed,
- * the client signs offchain and retries automatically.
+ * Pay an agent endpoint via Arc Gateway x402 nanopayment.
  *
- * @param {string} agentUrl - The x402-protected endpoint of the specialist agent
- * @param {number} amountUSDC - Expected price in USDC (e.g. 0.01)
- * @param {object} body - Request body to send to the agent
- * @returns {object} - The JSON response from the agent
+ * Flow (handled automatically by GatewayClient):
+ *   1. POST to agentUrl with body
+ *   2. Agent returns 402 + PAYMENT-REQUIRED header
+ *   3. Client signs EIP-3009 TransferWithAuthorization offchain (no gas)
+ *   4. Client retries with Payment-Signature header
+ *   5. Agent verifies via Circle Gateway facilitator
+ *   6. Agent returns 200 + response data
+ *
+ * @param {string} agentUrl  - The x402-protected endpoint
+ * @param {number} amountUSDC - Price in USDC (for logging only; enforced by agent)
+ * @param {object} body       - JSON body to send to the agent
+ * @returns {object}          - Parsed JSON response from the agent
  */
 export async function pay(agentUrl, amountUSDC, body = {}) {
   const client = getClient();
-  console.log("[Arc] Paying $" + amountUSDC + " USDC to " + agentUrl);
+  console.log(`[Arc] Paying $${amountUSDC} USDC → ${agentUrl}`);
 
-  try {
-    const { data, status } = await client.pay(agentUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+  const { data, status } = await client.pay(agentUrl, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
 
-    if (status !== 200) {
-      throw new Error("Agent returned status " + status);
-    }
-
-    console.log("[Arc] Payment confirmed - $" + amountUSDC + " USDC settled");
-    return data;
-
-  } catch (err) {
-    // If Gateway payment fails, fall back to direct call for local dev
-    if (process.env.NODE_ENV !== "production") {
-      console.warn("[Arc] Gateway pay failed, falling back to direct call: " + err.message);
-      const res = await fetch(agentUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      if (!res.ok) throw new Error("Direct call failed: " + res.status);
-      return res.json();
-    }
-    throw err;
+  if (status !== 200) {
+    throw new Error(`[Arc] Agent at ${agentUrl} returned status ${status}`);
   }
+
+  console.log(`[Arc] ✓ Payment settled — $${amountUSDC} USDC`);
+  return data;
 }
 
 export async function getBalance() {
   const client = getClient();
   const balances = await client.getBalances();
-  console.log("[Arc] Gateway balance: " + balances.gateway.formattedAvailable + " USDC");
-  console.log("[Arc] Wallet balance:  " + balances.wallet.formatted + " USDC");
+  console.log(`[Arc] Gateway balance: ${balances.gateway.formattedAvailable} USDC`);
+  console.log(`[Arc] Wallet balance:  ${balances.wallet.formatted} USDC`);
   return balances;
 }
 
 export async function depositToGateway(amountUSDC) {
   const client = getClient();
-  console.log("[Arc] Depositing " + amountUSDC + " USDC into Gateway...");
+  console.log(`[Arc] Depositing ${amountUSDC} USDC into Gateway...`);
   const deposit = await client.deposit(amountUSDC);
-  console.log("[Arc] Deposit tx: " + deposit.depositTxHash);
+  console.log(`[Arc] Deposit tx: ${deposit.depositTxHash}`);
   return deposit;
 }
