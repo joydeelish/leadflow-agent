@@ -20,38 +20,29 @@ app.use(express.json());
 const gateway = createAgentGateway("ENRICHMENT_AGENT_WALLET");
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-/**
- * POST /enrich - payment-gated enrichment endpoint
- * Accepts a raw lead and returns enriched profile data.
- * Price: $0.01 USDC per call, settled on Arc Testnet.
- */
 app.post("/enrich", gateway.require("$0.01"), async (req, res) => {
   const lead = req.body;
   console.log("[Enrichment] Processing lead: " + lead.email + " | Paid by: " + req.payment?.payer);
 
   try {
-    // Use OpenAI with web search to find info about this lead
     const response = await openai.responses.create({
       model: "gpt-4o-mini",
       tools: [{ type: "web_search_preview" }],
       input: "Search the web and find professional information about this person: " +
         "Name: " + (lead.name || "unknown") + ", " +
-        "Email: " + (lead.email || "unknown") + ", " +
-        "Phone: " + (lead.phone || "unknown") + ". " +
-        "Return ONLY a JSON object with these fields: " +
+        "Email: " + (lead.email || "unknown") + ". " +
+        "Return ONLY a JSON object with these exact fields: " +
         "{ company, jobTitle, industry, companySize, location, linkedIn, notes } " +
-        "If you cannot find a field, set it to null. No extra text, just JSON."
+        "If you cannot find a field set it to null. No extra text, just the JSON object."
     });
 
-    // Extract the text response
     const raw = response.output
       .filter(block => block.type === "message")
       .map(block => block.content.filter(c => c.type === "output_text").map(c => c.text).join(""))
       .join("");
 
-    // Parse the JSON from the response
-    const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    const enrichmentData = jsonMatch ? JSON.parse(jsonMatch[0]) : {};
+    const jsonMatch = raw.match(/[\s\S]*?({[\s\S]*})/);
+    const enrichmentData = jsonMatch ? JSON.parse(jsonMatch[1]) : {};
 
     const enriched = {
       ...lead,
@@ -70,8 +61,7 @@ app.post("/enrich", gateway.require("$0.01"), async (req, res) => {
     res.json(enriched);
 
   } catch (err) {
-    console.error("[Enrichment] Error:", err.message);
-    // Return basic lead data if enrichment fails
+    console.error("[Enrichment] Error: " + err.message);
     res.json({
       ...lead,
       enrichedAt: new Date().toISOString(),
