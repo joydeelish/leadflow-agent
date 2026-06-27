@@ -3,29 +3,29 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>LeadFlow Agent — Dashboard</title>
+<title>LeadFlow Agent</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
   :root {
-    --bg:        #F7F8FA;
-    --surface:   #FFFFFF;
-    --border:    #E8EAED;
-    --text:      #0F1117;
-    --muted:     #6B7280;
-    --accent:    #2563EB;
-    --accent-lt: #EFF6FF;
-    --hot:       #DC2626;
-    --hot-lt:    #FEF2F2;
-    --warm:      #D97706;
-    --warm-lt:   #FFFBEB;
-    --cold:      #6B7280;
-    --cold-lt:   #F9FAFB;
-    --green:     #16A34A;
-    --green-lt:  #F0FDF4;
-    --radius:    10px;
-    --shadow:    0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
+    --bg: #F7F8FA;
+    --surface: #FFFFFF;
+    --border: #E4E7EC;
+    --text-primary: #0F1117;
+    --text-secondary: #6B7280;
+    --text-muted: #9CA3AF;
+    --accent: #2563EB;
+    --accent-light: #EFF6FF;
+    --accent-mid: #BFDBFE;
+    --hot: #DC2626;
+    --hot-bg: #FEF2F2;
+    --warm: #D97706;
+    --warm-bg: #FFFBEB;
+    --cold: #6B7280;
+    --cold-bg: #F9FAFB;
+    --success: #059669;
+    --success-bg: #ECFDF5;
+    --usdc: #2775CA;
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -33,154 +33,264 @@
   body {
     font-family: 'Inter', sans-serif;
     background: var(--bg);
-    color: var(--text);
+    color: var(--text-primary);
     min-height: 100vh;
   }
 
-  /* ── Sidebar ── */
-  .layout { display: flex; min-height: 100vh; }
-
-  .sidebar {
-    width: 220px;
+  /* ── Nav ── */
+  nav {
     background: var(--surface);
-    border-right: 1px solid var(--border);
-    padding: 24px 0;
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 0; left: 0; bottom: 0;
-    z-index: 10;
-  }
-
-  .logo {
-    padding: 0 20px 24px;
     border-bottom: 1px solid var(--border);
-    margin-bottom: 16px;
-  }
-
-  .logo-mark {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .logo-icon {
-    width: 32px; height: 32px;
-    background: var(--accent);
-    border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-  }
-
-  .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
-  .logo-sub  { font-size: 11px; color: var(--muted); margin-top: 1px; font-family: 'JetBrains Mono', monospace; }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 20px;
-    font-size: 13.5px;
-    font-weight: 500;
-    color: var(--muted);
-    cursor: pointer;
-    border-radius: 0;
-    transition: all 0.15s;
-    border-left: 3px solid transparent;
-  }
-
-  .nav-item:hover { background: var(--bg); color: var(--text); }
-  .nav-item.active { color: var(--accent); background: var(--accent-lt); border-left-color: var(--accent); }
-  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
-
-  .nav-section {
-    font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
-    color: var(--muted);
-    padding: 16px 20px 6px;
-    text-transform: uppercase;
-  }
-
-  .arc-badge {
-    margin: auto 20px 0;
-    padding: 10px 12px;
-    background: var(--accent-lt);
-    border-radius: var(--radius);
-    border: 1px solid #BFDBFE;
-  }
-
-  .arc-badge-label { font-size: 10px; color: var(--accent); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
-  .arc-badge-value { font-size: 18px; font-weight: 700; color: var(--accent); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
-  .arc-badge-sub   { font-size: 11px; color: var(--muted); margin-top: 1px; }
-
-  /* ── Main ── */
-  .main {
-    margin-left: 220px;
-    flex: 1;
-    padding: 32px;
-  }
-
-  .page { display: none; }
-  .page.active { display: block; }
-
-  /* ── Page Header ── */
-  .page-header {
+    padding: 0 32px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 28px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
   }
 
-  .page-title { font-size: 22px; font-weight: 700; letter-spacing: -0.4px; }
-  .page-sub   { font-size: 13px; color: var(--muted); margin-top: 3px; }
+  .nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: -0.3px;
+  }
 
-  .btn {
-    padding: 9px 18px;
-    border-radius: var(--radius);
-    font-size: 13.5px;
+  .nav-brand-dot {
+    width: 8px; height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.3); }
+  }
+
+  .nav-badge {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--usdc);
+    background: #EFF6FF;
+    border: 1px solid var(--accent-mid);
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Layout ── */
+  .layout {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 0;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* ── Left Panel ── */
+  .left-panel {
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
+
+  input, textarea {
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    background: var(--bg);
+    color: var(--text-primary);
+    transition: border-color 0.15s, box-shadow 0.15s;
+    outline: none;
+    width: 100%;
+  }
+
+  input:focus, textarea:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    background: white;
+  }
+
+  textarea { resize: vertical; min-height: 80px; }
+
+  .submit-btn {
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    border: none;
-    transition: all 0.15s;
+    transition: background 0.15s, transform 0.1s;
     font-family: 'Inter', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
 
-  .btn-primary { background: var(--accent); color: #fff; }
-  .btn-primary:hover { background: #1D4ED8; }
-  .btn-ghost { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-  .btn-ghost:hover { background: var(--bg); }
+  .submit-btn:hover:not(:disabled) { background: #1D4ED8; }
+  .submit-btn:active:not(:disabled) { transform: scale(0.99); }
+  .submit-btn:disabled { background: #93C5FD; cursor: not-allowed; }
 
-  /* ── Stat Cards ── */
-  .stats-grid {
+  /* ── Pipeline Steps ── */
+  .pipeline-section { display: flex; flex-direction: column; gap: 8px; }
+
+  .pipeline-step {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    transition: all 0.3s ease;
+  }
+
+  .pipeline-step.active {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .pipeline-step.done {
+    border-color: #A7F3D0;
+    background: var(--success-bg);
+  }
+
+  .pipeline-step.error {
+    border-color: #FECACA;
+    background: var(--hot-bg);
+  }
+
+  .step-icon {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    background: var(--border);
+  }
+
+  .pipeline-step.active .step-icon { background: var(--accent); }
+  .pipeline-step.done .step-icon { background: var(--success); }
+  .pipeline-step.error .step-icon { background: var(--hot); }
+
+  .step-info { flex: 1; }
+
+  .step-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .step-detail {
+    font-size: 11px;
+    color: var(--text-secondary);
+    margin-top: 2px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .step-status {
+    font-size: 11px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .pipeline-step.active .step-status { color: var(--accent); }
+  .pipeline-step.done .step-status { color: var(--success); }
+  .pipeline-step.error .step-status { color: var(--hot); }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinning { animation: spin 0.8s linear infinite; display: inline-block; }
+
+  /* ── Right Panel ── */
+  .right-panel {
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  /* ── Stats Row ── */
+  .stats-row {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
-    margin-bottom: 28px;
   }
 
   .stat-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: var(--shadow);
+    border-radius: 12px;
+    padding: 18px 20px;
   }
 
-  .stat-label { font-size: 12px; font-weight: 500; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-  .stat-value { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-top: 6px; font-family: 'JetBrains Mono', monospace; }
-  .stat-delta { font-size: 12px; color: var(--green); margin-top: 4px; font-weight: 500; }
+  .stat-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
 
-  /* ── Lead Table ── */
-  .card {
+  .stat-value {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    margin-top: 6px;
+    line-height: 1;
+  }
+
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── Leads Table ── */
+  .leads-section {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
+    border-radius: 12px;
     overflow: hidden;
+    flex: 1;
   }
 
-  .card-header {
+  .leads-header {
     padding: 16px 20px;
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -188,26 +298,39 @@
     justify-content: space-between;
   }
 
-  .card-title { font-size: 14px; font-weight: 600; }
+  .leads-title {
+    font-size: 14px;
+    font-weight: 600;
+  }
 
-  table { width: 100%; border-collapse: collapse; }
+  .leads-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
   th {
     text-align: left;
+    padding: 10px 16px;
     font-size: 11px;
     font-weight: 600;
-    color: var(--muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    padding: 12px 20px;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
     background: var(--bg);
     border-bottom: 1px solid var(--border);
   }
 
   td {
-    padding: 14px 20px;
-    font-size: 13.5px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--border);
-    vertical-align: middle;
+    color: var(--text-primary);
   }
 
   tr:last-child td { border-bottom: none; }
@@ -216,8 +339,8 @@
   .tier-badge {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
-    padding: 3px 10px;
+    gap: 4px;
+    padding: 3px 8px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
@@ -225,612 +348,413 @@
     letter-spacing: 0.04em;
   }
 
-  .tier-hot  { background: var(--hot-lt);  color: var(--hot);  }
-  .tier-warm { background: var(--warm-lt); color: var(--warm); }
-  .tier-cold { background: var(--cold-lt); color: var(--cold); }
+  .tier-hot { background: var(--hot-bg); color: var(--hot); }
+  .tier-warm { background: var(--warm-bg); color: var(--warm); }
+  .tier-cold { background: var(--cold-bg); color: var(--cold); }
 
-  .status-badge {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 3px 10px; border-radius: 20px;
-    font-size: 11px; font-weight: 600;
-  }
-
-  .status-qualified   { background: var(--green-lt); color: var(--green); }
-  .status-rejected    { background: var(--cold-lt);  color: var(--cold); }
-  .status-processing  { background: var(--accent-lt); color: var(--accent); }
-
-  .score-bar-wrap { display: flex; align-items: center; gap: 10px; }
-  .score-bar { height: 5px; border-radius: 3px; background: var(--border); flex: 1; max-width: 80px; }
-  .score-fill { height: 100%; border-radius: 3px; background: var(--accent); transition: width 0.6s ease; }
-  .score-num  { font-size: 12px; font-weight: 600; font-family: 'JetBrains Mono', monospace; color: var(--muted); }
-
-  .mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); }
-
-  /* ── Pipeline View ── */
-  .pipeline-wrap {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 24px;
-  }
-
-  .pipeline-form { }
-
-  .form-group { margin-bottom: 16px; }
-  .form-label { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 6px; }
-
-  .form-input {
-    width: 100%;
-    padding: 10px 14px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    font-size: 14px;
-    font-family: 'Inter', sans-serif;
-    background: var(--surface);
-    color: var(--text);
-    outline: none;
-    transition: border-color 0.15s;
-  }
-
-  .form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
-  textarea.form-input { resize: vertical; min-height: 80px; }
-
-  .pipeline-steps { }
-
-  .step {
-    display: flex;
-    gap: 14px;
-    margin-bottom: 8px;
-    align-items: flex-start;
-  }
-
-  .step-indicator {
-    display: flex;
-    flex-direction: column;
+  .qualified-badge {
+    display: inline-flex;
     align-items: center;
-    gap: 0;
-    flex-shrink: 0;
-  }
-
-  .step-dot {
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px;
-    font-weight: 600;
-    background: var(--border);
-    color: var(--muted);
-    transition: all 0.4s ease;
-    position: relative;
-    z-index: 1;
-  }
-
-  .step-dot.active   { background: var(--accent); color: #fff; box-shadow: 0 0 0 4px rgba(37,99,235,0.15); }
-  .step-dot.done     { background: var(--green);  color: #fff; }
-  .step-dot.spinning { animation: pulse 1s infinite; }
-
-  @keyframes pulse {
-    0%, 100% { box-shadow: 0 0 0 0 rgba(37,99,235,0.3); }
-    50%       { box-shadow: 0 0 0 8px rgba(37,99,235,0); }
-  }
-
-  .step-line {
-    width: 2px;
-    height: 32px;
-    background: var(--border);
-    margin: 0 auto;
-    transition: background 0.4s;
-  }
-
-  .step-line.done { background: var(--green); }
-
-  .step-body { flex: 1; padding-top: 4px; padding-bottom: 24px; }
-  .step-title { font-size: 14px; font-weight: 600; }
-  .step-desc  { font-size: 12.5px; color: var(--muted); margin-top: 3px; }
-
-  .step-result {
-    margin-top: 10px;
-    padding: 12px 14px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    font-size: 12.5px;
-    display: none;
-  }
-
-  .step-result.visible { display: block; }
-  .step-result .result-row { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .step-result .result-key { color: var(--muted); }
-  .step-result .result-val { font-weight: 600; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
-
-  .payment-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: var(--green-lt);
-    color: var(--green);
-    border: 1px solid #BBF7D0;
+    gap: 4px;
+    padding: 3px 8px;
     border-radius: 20px;
-    padding: 3px 10px;
     font-size: 11px;
     font-weight: 600;
-    margin-top: 6px;
   }
 
-  .final-result {
-    padding: 16px;
-    border-radius: var(--radius);
-    margin-top: 12px;
-    display: none;
-    animation: fadeIn 0.3s ease;
-  }
+  .qualified-yes { background: var(--success-bg); color: var(--success); }
+  .qualified-no { background: var(--cold-bg); color: var(--cold); }
 
-  .final-result.visible { display: block; }
-  .final-result.qualified { background: var(--green-lt); border: 1px solid #BBF7D0; }
-  .final-result.rejected  { background: var(--cold-lt);  border: 1px solid var(--border); }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
-
-  .final-title { font-size: 15px; font-weight: 700; }
-  .final-sub   { font-size: 13px; color: var(--muted); margin-top: 4px; }
-
-  /* ── Empty State ── */
-  .empty {
-    text-align: center;
-    padding: 60px 20px;
-    color: var(--muted);
-  }
-
-  .empty-icon { font-size: 36px; margin-bottom: 12px; }
-  .empty-title { font-size: 15px; font-weight: 600; color: var(--text); }
-  .empty-sub   { font-size: 13px; margin-top: 4px; }
-
-  /* ── Arc tx strip ── */
-  .tx-strip {
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px 14px;
-    background: var(--accent-lt);
-    border: 1px solid #BFDBFE;
-    border-radius: 8px;
-    margin-top: 8px;
-    font-size: 12px;
-  }
-
-  .tx-dot { width: 7px; height: 7px; background: var(--accent); border-radius: 50%; flex-shrink: 0; }
-  .tx-label { color: var(--muted); }
-  .tx-hash  { font-family: 'JetBrains Mono', monospace; color: var(--accent); font-size: 11px; }
-
-  .api-url-bar {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 14px;
-    background: #0F1117;
-    border-radius: var(--radius);
-    margin-bottom: 24px;
+  .payment-tag {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    color: #9CA3AF;
+    font-size: 11px;
+    color: var(--usdc);
+    background: #EFF6FF;
+    padding: 2px 6px;
+    border-radius: 4px;
   }
 
-  .api-method { color: #34D399; font-weight: 700; }
-  .api-path   { color: #F9FAFB; }
+  .score-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
+  .score-bar {
+    width: 60px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-fill {
+    height: 100%;
+    border-radius: 2px;
+    transition: width 0.5s ease;
+  }
+
+  .score-num {
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    min-width: 28px;
+  }
+
+  .empty-state {
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+  }
+
+  .empty-state-icon { font-size: 32px; margin-bottom: 12px; }
+  .empty-state-title { font-size: 14px; font-weight: 600; color: var(--text-secondary); }
+  .empty-state-sub { font-size: 13px; margin-top: 4px; }
+
+  /* ── Result card ── */
+  .result-card {
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 20px;
+    background: var(--surface);
+    animation: slideIn 0.3s ease;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-card.qualified { border-color: #A7F3D0; background: var(--success-bg); }
+  .result-card.rejected { border-color: var(--border); }
+
+  .result-headline {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .result-detail {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .result-item { display: flex; flex-direction: column; gap: 2px; }
+  .result-item-label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+  .result-item-value { font-size: 13px; font-weight: 600; }
 </style>
 </head>
 <body>
 
+<nav>
+  <div class="nav-brand">
+    <div class="nav-brand-dot"></div>
+    LeadFlow Agent
+  </div>
+  <span class="nav-badge">Arc Testnet · USDC</span>
+</nav>
+
 <div class="layout">
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="logo">
-      <div class="logo-mark">
-        <div class="logo-icon">⚡</div>
-        <div>
-          <div class="logo-text">LeadFlow</div>
-          <div class="logo-sub">arc testnet</div>
+  <!-- LEFT: Form + Pipeline -->
+  <div class="left-panel">
+    <div>
+      <div class="panel-title" style="margin-bottom:16px">Submit a Lead</div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div class="form-group">
+          <label>Full Name</label>
+          <input id="name" type="text" placeholder="Chidi Okeke" />
         </div>
-      </div>
-    </div>
-
-    <span class="nav-section">Main</span>
-    <div class="nav-item active" onclick="showPage('dashboard', this)">
-      <span class="nav-icon">◼</span> Dashboard
-    </div>
-    <div class="nav-item" onclick="showPage('pipeline', this)">
-      <span class="nav-icon">→</span> Run Pipeline
-    </div>
-
-    <div class="arc-badge">
-      <div class="arc-badge-label">Gateway Balance</div>
-      <div class="arc-badge-value" id="sidebar-balance">—</div>
-      <div class="arc-badge-sub">USDC on Arc Testnet</div>
-    </div>
-  </aside>
-
-  <!-- Main -->
-  <main class="main">
-
-    <!-- ── Dashboard ── -->
-    <div class="page active" id="page-dashboard">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Lead Dashboard</div>
-          <div class="page-sub">All leads processed by LeadFlow Agent</div>
+        <div class="form-group">
+          <label>Email Address</label>
+          <input id="email" type="email" placeholder="chidi@example.com" />
         </div>
-        <button class="btn btn-primary" onclick="showPage('pipeline', document.querySelector('.nav-item:nth-child(3)'))">
-          + Run New Lead
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input id="phone" type="text" placeholder="+2348012345678" />
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea id="message" placeholder="I am looking for a 3-bedroom apartment in Lekki..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Location</label>
+          <input id="location" type="text" placeholder="Lagos, Nigeria" />
+        </div>
+        <button class="submit-btn" id="submitBtn" onclick="submitLead()">
+          <span id="btnText">Process Lead</span>
         </button>
       </div>
+    </div>
 
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total Leads</div>
-          <div class="stat-value" id="stat-total">0</div>
-          <div class="stat-delta">All time</div>
+    <!-- Pipeline Steps -->
+    <div class="pipeline-section">
+      <div class="panel-title" style="margin-bottom:4px">Pipeline Status</div>
+      <div class="pipeline-step" id="step-enrich">
+        <div class="step-icon" id="icon-enrich">🔍</div>
+        <div class="step-info">
+          <div class="step-name">Enrichment Agent</div>
+          <div class="step-detail" id="detail-enrich">Waiting for lead...</div>
         </div>
-        <div class="stat-card">
-          <div class="stat-label">Qualified</div>
-          <div class="stat-value" id="stat-qualified" style="color:var(--green)">0</div>
-          <div class="stat-delta" id="stat-rate">—</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Hot Leads 🔥</div>
-          <div class="stat-value" id="stat-hot" style="color:var(--hot)">0</div>
-          <div class="stat-delta">Score ≥ 80</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">USDC Spent</div>
-          <div class="stat-value" id="stat-usdc" style="color:var(--accent)">$0.00</div>
-          <div class="stat-delta">$0.02 per lead</div>
-        </div>
+        <div class="step-status" id="status-enrich">—</div>
       </div>
-
-      <div class="card">
-        <div class="card-header">
-          <div class="card-title">All Leads</div>
+      <div class="pipeline-step" id="step-score">
+        <div class="step-icon" id="icon-score">⚡</div>
+        <div class="step-info">
+          <div class="step-name">Scoring Agent</div>
+          <div class="step-detail" id="detail-score">Waiting for lead...</div>
         </div>
-        <div id="leads-table-wrap">
-          <div class="empty">
-            <div class="empty-icon">📋</div>
-            <div class="empty-title">No leads yet</div>
-            <div class="empty-sub">Run the pipeline to process your first lead</div>
-          </div>
+        <div class="step-status" id="status-score">—</div>
+      </div>
+      <div class="pipeline-step" id="step-deliver">
+        <div class="step-icon" id="icon-deliver">📲</div>
+        <div class="step-info">
+          <div class="step-name">WhatsApp Delivery</div>
+          <div class="step-detail" id="detail-deliver">Waiting for lead...</div>
+        </div>
+        <div class="step-status" id="status-deliver">—</div>
+      </div>
+    </div>
+
+    <!-- Result Card -->
+    <div id="resultCard" style="display:none"></div>
+  </div>
+
+  <!-- RIGHT: Dashboard -->
+  <div class="right-panel">
+
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-label">Total Leads</div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-sub">processed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Qualified</div>
+        <div class="stat-value" id="stat-qualified" style="color:var(--success)">0</div>
+        <div class="stat-sub" id="stat-rate">—% rate</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Hot Leads</div>
+        <div class="stat-value" id="stat-hot" style="color:var(--hot)">0</div>
+        <div class="stat-sub">score ≥ 80</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">USDC Spent</div>
+        <div class="stat-value" id="stat-usdc" style="color:var(--usdc)">$0.00</div>
+        <div class="stat-sub">$0.02/lead</div>
+      </div>
+    </div>
+
+    <!-- Leads Table -->
+    <div class="leads-section">
+      <div class="leads-header">
+        <div class="leads-title">Lead Results</div>
+        <div class="leads-count" id="leads-count">0 leads</div>
+      </div>
+      <div id="tableWrap">
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div class="empty-state-title">No leads yet</div>
+          <div class="empty-state-sub">Submit a lead to see the pipeline in action</div>
         </div>
       </div>
     </div>
 
-    <!-- ── Pipeline ── -->
-    <div class="page" id="page-pipeline">
-      <div class="page-header">
-        <div>
-          <div class="page-title">Run Pipeline</div>
-          <div class="page-sub">Submit a lead and watch it process in real time</div>
-        </div>
-      </div>
-
-      <div class="api-url-bar">
-        <span class="api-method">POST</span>
-        <span class="api-path" id="api-endpoint-display">/api/lead</span>
-        <span style="margin-left:auto;color:#6B7280">Arc Testnet · USDC</span>
-      </div>
-
-      <div class="pipeline-wrap">
-
-        <!-- Form -->
-        <div class="card pipeline-form" style="padding:24px">
-          <div class="card-title" style="margin-bottom:20px">Lead Details</div>
-
-          <div class="form-group">
-            <label class="form-label">Full Name</label>
-            <input class="form-input" id="f-name" placeholder="e.g. Chidi Okeke" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input class="form-input" id="f-email" type="email" placeholder="chidi@example.com" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Phone</label>
-            <input class="form-input" id="f-phone" placeholder="+2348012345678" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Location</label>
-            <input class="form-input" id="f-location" placeholder="Lagos, Nigeria" />
-          </div>
-          <div class="form-group">
-            <label class="form-label">Message / Inquiry</label>
-            <textarea class="form-input" id="f-message" placeholder="I am looking for a 3-bedroom apartment in Lekki..."></textarea>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Source</label>
-            <input class="form-input" id="f-source" placeholder="Facebook Lead Ad" />
-          </div>
-
-          <button class="btn btn-primary" style="width:100%;margin-top:4px" onclick="runPipeline()" id="run-btn">
-            ⚡ Process Lead
-          </button>
-        </div>
-
-        <!-- Steps -->
-        <div class="card" style="padding:24px" id="steps-panel">
-          <div class="card-title" style="margin-bottom:20px">Live Pipeline</div>
-
-          <!-- Step 1 -->
-          <div class="step">
-            <div class="step-indicator">
-              <div class="step-dot" id="dot-1">1</div>
-              <div class="step-line" id="line-1"></div>
-            </div>
-            <div class="step-body">
-              <div class="step-title">Enrichment Agent</div>
-              <div class="step-desc">Pays $0.01 USDC · OpenAI web search</div>
-              <div class="step-result" id="result-1">
-                <div class="result-row"><span class="result-key">Company</span><span class="result-val" id="r1-company">—</span></div>
-                <div class="result-row"><span class="result-key">Job Title</span><span class="result-val" id="r1-title">—</span></div>
-                <div class="result-row"><span class="result-key">Industry</span><span class="result-val" id="r1-industry">—</span></div>
-                <div class="result-row"><span class="result-key">Location</span><span class="result-val" id="r1-location">—</span></div>
-                <div class="payment-chip">✓ $0.01 USDC settled on Arc</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="step">
-            <div class="step-indicator">
-              <div class="step-dot" id="dot-2">2</div>
-              <div class="step-line" id="line-2"></div>
-            </div>
-            <div class="step-body">
-              <div class="step-title">Scoring Agent</div>
-              <div class="step-desc">Pays $0.01 USDC · GPT-4o-mini</div>
-              <div class="step-result" id="result-2">
-                <div class="result-row"><span class="result-key">Score</span><span class="result-val" id="r2-score">—</span></div>
-                <div class="result-row"><span class="result-key">Tier</span><span class="result-val" id="r2-tier">—</span></div>
-                <div class="result-row"><span class="result-key">Reason</span><span class="result-val" id="r2-reason" style="max-width:200px;text-align:right;font-family:Inter;font-size:11.5px">—</span></div>
-                <div class="payment-chip">✓ $0.01 USDC settled on Arc</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Step 3 -->
-          <div class="step" style="margin-bottom:0">
-            <div class="step-indicator">
-              <div class="step-dot" id="dot-3">3</div>
-            </div>
-            <div class="step-body">
-              <div class="step-title">WhatsApp Delivery</div>
-              <div class="step-desc">Sends qualified lead to business owner</div>
-              <div class="final-result" id="final-result"></div>
-            </div>
-          </div>
-        </div>
-
-      </div>
-    </div>
-
-  </main>
+  </div>
 </div>
 
 <script>
-  // ── Config ──────────────────────────────────────────────────────────────
-  // Change this to your deployed backend URL when on Railway
-  const API_BASE = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-    ? 'http://localhost:3000'
-    : '';  // same origin when deployed
+  const API_BASE = "http://localhost:3000";
+  let leads = [];
 
-  // ── State ───────────────────────────────────────────────────────────────
-  let leads = JSON.parse(localStorage.getItem('lf_leads') || '[]');
+  function setStep(id, state, detail, status) {
+    const step = document.getElementById("step-" + id);
+    const icon = document.getElementById("icon-" + id);
+    const det  = document.getElementById("detail-" + id);
+    const stat = document.getElementById("status-" + id);
 
-  // ── Nav ─────────────────────────────────────────────────────────────────
-  function showPage(id, el) {
-    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-    document.getElementById('page-' + id).classList.add('active');
-    if (el) el.classList.add('active');
-    if (id === 'dashboard') renderTable();
+    step.className = "pipeline-step " + (state || "");
+    if (detail) det.textContent = detail;
+    if (status) stat.textContent = status;
+
+    const icons = { enrich: "🔍", score: "⚡", deliver: "📲" };
+    if (state === "active") icon.innerHTML = '<span class="spinning">⟳</span>';
+    else if (state === "done") icon.textContent = "✓";
+    else if (state === "error") icon.textContent = "✕";
+    else icon.textContent = icons[id];
   }
 
-  // ── Dashboard ───────────────────────────────────────────────────────────
-  function renderTable() {
+  function resetSteps() {
+    ["enrich","score","deliver"].forEach(id => setStep(id, "", "Waiting for lead...", "—"));
+    document.getElementById("resultCard").style.display = "none";
+  }
+
+  function updateStats() {
     const total     = leads.length;
     const qualified = leads.filter(l => l.qualified).length;
-    const hot       = leads.filter(l => l.tier === 'hot').length;
+    const hot       = leads.filter(l => l.tier === "hot").length;
     const usdc      = (total * 0.02).toFixed(2);
+    const rate      = total ? Math.round((qualified/total)*100) : 0;
 
-    document.getElementById('stat-total').textContent     = total;
-    document.getElementById('stat-qualified').textContent = qualified;
-    document.getElementById('stat-hot').textContent       = hot;
-    document.getElementById('stat-usdc').textContent      = '$' + usdc;
-    document.getElementById('stat-rate').textContent      = total ? Math.round(qualified/total*100) + '% qualify rate' : '—';
+    document.getElementById("stat-total").textContent     = total;
+    document.getElementById("stat-qualified").textContent = qualified;
+    document.getElementById("stat-hot").textContent       = hot;
+    document.getElementById("stat-usdc").textContent      = "$" + usdc;
+    document.getElementById("stat-rate").textContent      = rate + "% rate";
+    document.getElementById("leads-count").textContent    = total + " lead" + (total !== 1 ? "s" : "");
+  }
 
-    const wrap = document.getElementById('leads-table-wrap');
-
+  function renderTable() {
+    const wrap = document.getElementById("tableWrap");
     if (!leads.length) {
-      wrap.innerHTML = `<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No leads yet</div><div class="empty-sub">Run the pipeline to process your first lead</div></div>`;
+      wrap.innerHTML = `<div class="empty-state">
+        <div class="empty-state-icon">📋</div>
+        <div class="empty-state-title">No leads yet</div>
+        <div class="empty-state-sub">Submit a lead to see the pipeline in action</div>
+      </div>`;
       return;
     }
 
     const rows = [...leads].reverse().map(l => {
-      const tier = l.tier || 'cold';
-      const emoji = tier === 'hot' ? '🔥' : tier === 'warm' ? '⚡' : '❄️';
-      const qClass = l.qualified ? 'qualified' : 'rejected';
-      const qLabel = l.qualified ? 'Qualified' : 'Rejected';
-      return `
-        <tr>
-          <td><strong>${l.name || '—'}</strong><br><span class="mono">${l.email || ''}</span></td>
-          <td>${l.company || '—'}<br><span class="mono" style="font-size:11px">${l.jobTitle || ''}</span></td>
-          <td>
-            <div class="score-bar-wrap">
-              <div class="score-bar"><div class="score-fill" style="width:${l.score}%"></div></div>
-              <span class="score-num">${l.score}</span>
-            </div>
-          </td>
-          <td><span class="tier-badge tier-${tier}">${emoji} ${tier}</span></td>
-          <td><span class="status-badge status-${qClass}">${qLabel}</span></td>
-          <td><span class="mono">$0.02</span></td>
-          <td><span class="mono">${new Date(l.processedAt).toLocaleString()}</span></td>
-        </tr>`;
-    }).join('');
+      const scoreColor = l.score >= 80 ? "var(--hot)" : l.score >= 60 ? "var(--warm)" : "var(--cold)";
+      const tierClass  = l.tier === "hot" ? "tier-hot" : l.tier === "warm" ? "tier-warm" : "tier-cold";
+      const tierEmoji  = l.tier === "hot" ? "🔥" : l.tier === "warm" ? "⚡" : "❄️";
 
-    wrap.innerHTML = `
-      <table>
-        <thead>
-          <tr>
-            <th>Lead</th>
-            <th>Company</th>
-            <th>Score</th>
-            <th>Tier</th>
-            <th>Status</th>
-            <th>USDC</th>
-            <th>Time</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>`;
+      return `<tr>
+        <td><strong>${l.name}</strong><br><span style="color:var(--text-muted);font-size:12px">${l.email}</span></td>
+        <td>${l.company || "—"}<br><span style="color:var(--text-muted);font-size:12px">${l.jobTitle || ""}</span></td>
+        <td>
+          <div class="score-bar-wrap">
+            <div class="score-bar"><div class="score-fill" style="width:${l.score}%;background:${scoreColor}"></div></div>
+            <span class="score-num" style="color:${scoreColor}">${l.score}</span>
+          </div>
+        </td>
+        <td><span class="tier-badge ${tierClass}">${tierEmoji} ${l.tier}</span></td>
+        <td><span class="qualified-badge ${l.qualified ? 'qualified-yes' : 'qualified-no'}">${l.qualified ? '✓ Yes' : '✕ No'}</span></td>
+        <td><span class="payment-tag">$0.02 USDC</span></td>
+        <td style="color:var(--text-muted);font-size:12px">${new Date(l.time).toLocaleTimeString()}</td>
+      </tr>`;
+    }).join("");
+
+    wrap.innerHTML = `<table>
+      <thead><tr>
+        <th>Lead</th><th>Company</th><th>Score</th><th>Tier</th><th>Qualified</th><th>Paid</th><th>Time</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
   }
 
-  // ── Pipeline ─────────────────────────────────────────────────────────────
-  function resetSteps() {
-    [1,2,3].forEach(i => {
-      const dot = document.getElementById('dot-' + i);
-      dot.className = 'step-dot';
-      dot.textContent = i;
-    });
-    [1,2].forEach(i => {
-      document.getElementById('line-' + i)?.classList.remove('done');
-    });
-    ['result-1','result-2'].forEach(id => {
-      document.getElementById(id).classList.remove('visible');
-    });
-    document.getElementById('final-result').className = 'final-result';
-    document.getElementById('final-result').innerHTML = '';
-  }
-
-  function activateStep(n) {
-    const dot = document.getElementById('dot-' + n);
-    dot.className = 'step-dot active spinning';
-  }
-
-  function completeStep(n) {
-    const dot = document.getElementById('dot-' + n);
-    dot.className = 'step-dot done';
-    dot.textContent = '✓';
-    if (n < 3) document.getElementById('line-' + n)?.classList.add('done');
-  }
-
-  async function runPipeline() {
-    const name     = document.getElementById('f-name').value.trim();
-    const email    = document.getElementById('f-email').value.trim();
-    const phone    = document.getElementById('f-phone').value.trim();
-    const location = document.getElementById('f-location').value.trim();
-    const message  = document.getElementById('f-message').value.trim();
-    const source   = document.getElementById('f-source').value.trim() || 'Web Form';
+  async function submitLead() {
+    const name     = document.getElementById("name").value.trim();
+    const email    = document.getElementById("email").value.trim();
+    const phone    = document.getElementById("phone").value.trim();
+    const message  = document.getElementById("message").value.trim();
+    const location = document.getElementById("location").value.trim();
 
     if (!name || !email) {
-      alert('Please enter at least a name and email.');
+      alert("Please enter at least a name and email.");
       return;
     }
 
-    const btn = document.getElementById('run-btn');
+    const btn = document.getElementById("submitBtn");
     btn.disabled = true;
-    btn.textContent = 'Processing...';
-
+    document.getElementById("btnText").textContent = "Processing...";
     resetSteps();
 
-    // Step 1 — animate enrichment
-    activateStep(1);
-    await sleep(600);
+    // Animate steps with timing
+    setTimeout(() => setStep("enrich", "active", "Paying $0.01 USDC...", "paying"), 300);
 
-    let result;
     try {
-      const res = await fetch(`${API_BASE}/api/lead`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, phone, location, message, source })
+      const res = await fetch(API_BASE + "/api/lead", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, phone, message, location, source: "LeadFlow Demo" })
       });
 
-      if (!res.ok) throw new Error('Server error: ' + res.status);
-      result = await res.json();
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.error || "Pipeline failed");
+
+      const result = data.result;
+
+      // Enrichment done
+      setStep("enrich", "done",
+        `${result.data?.company || "Unknown"} · ${result.data?.jobTitle || "Unknown"}`,
+        "$0.01 ✓");
+
+      // Scoring
+      setTimeout(() => {
+        setStep("score", "active", "Paying $0.01 USDC...", "paying");
+        setTimeout(() => {
+          setStep("score", "done", `Score: ${result.score}/100 (${result.tier})`, "$0.01 ✓");
+
+          // Delivery
+          setTimeout(() => {
+            if (result.qualified) {
+              setStep("deliver", "active", "Sending to business...", "sending");
+              setTimeout(() => setStep("deliver", "done", "Delivered via WhatsApp", "✓ sent"), 800);
+            } else {
+              setStep("deliver", "", "Lead did not qualify", "skipped");
+            }
+
+            // Result card
+            const card = document.getElementById("resultCard");
+            card.style.display = "block";
+            card.className = "result-card " + (result.qualified ? "qualified" : "rejected");
+            card.innerHTML = result.qualified
+              ? `<div class="result-headline">✅ Lead Qualified</div>
+                 <div class="result-detail">${result.reason}</div>
+                 <div class="result-grid">
+                   <div class="result-item"><div class="result-item-label">Company</div><div class="result-item-value">${result.data?.company || "—"}</div></div>
+                   <div class="result-item"><div class="result-item-label">Score</div><div class="result-item-value">${result.score}/100</div></div>
+                   <div class="result-item"><div class="result-item-label">Industry</div><div class="result-item-value">${result.data?.industry || "—"}</div></div>
+                   <div class="result-item"><div class="result-item-label">USDC paid</div><div class="result-item-value">$0.02</div></div>
+                 </div>`
+              : `<div class="result-headline">❌ Did Not Qualify</div>
+                 <div class="result-detail">${result.reason}</div>
+                 <div style="margin-top:8px;font-size:12px;color:var(--text-muted);font-family:'JetBrains Mono',monospace">Score: ${result.score}/100 · $0.02 USDC spent</div>`;
+
+            // Add to leads list
+            leads.push({
+              name, email,
+              company:  result.data?.company,
+              jobTitle: result.data?.jobTitle,
+              score:    result.score,
+              tier:     result.tier,
+              qualified: result.qualified,
+              time:     Date.now()
+            });
+
+            updateStats();
+            renderTable();
+
+            btn.disabled = false;
+            document.getElementById("btnText").textContent = "Process Lead";
+          }, 400);
+        }, 600);
+      }, 500);
+
     } catch (err) {
-      // Demo mode — simulate a result if backend not reachable
-      console.warn('Backend not reachable, running in demo mode:', err.message);
-      await sleep(2000);
-      result = {
-        qualified: true,
-        score: 82,
-        tier: 'hot',
-        reason: 'Strong purchase intent with clear budget and location preference.',
-        data: {
-          name, email, phone, location, message, source,
-          company: 'Demo Company Ltd',
-          jobTitle: 'Senior Manager',
-          industry: 'Finance',
-          linkedIn: null,
-          enrichedAt: new Date().toISOString(),
-        }
-      };
+      setStep("enrich", "error", err.message, "failed");
+      document.getElementById("resultCard").style.display = "block";
+      document.getElementById("resultCard").className = "result-card rejected";
+      document.getElementById("resultCard").innerHTML =
+        `<div class="result-headline">⚠️ Error</div>
+         <div class="result-detail">${err.message}<br><br>Make sure the LeadFlow server is running on port 3000.</div>`;
+      btn.disabled = false;
+      document.getElementById("btnText").textContent = "Process Lead";
     }
-
-    // Show enrichment result
-    completeStep(1);
-    document.getElementById('r1-company').textContent  = result.data?.company  || '—';
-    document.getElementById('r1-title').textContent    = result.data?.jobTitle || '—';
-    document.getElementById('r1-industry').textContent = result.data?.industry || '—';
-    document.getElementById('r1-location').textContent = result.data?.location || '—';
-    document.getElementById('result-1').classList.add('visible');
-
-    await sleep(400);
-
-    // Step 2 — scoring
-    activateStep(2);
-    await sleep(800);
-    completeStep(2);
-
-    document.getElementById('r2-score').textContent  = result.score + '/100';
-    document.getElementById('r2-tier').textContent   = result.tier?.toUpperCase() || '—';
-    document.getElementById('r2-reason').textContent = result.reason || '—';
-    document.getElementById('result-2').classList.add('visible');
-
-    await sleep(400);
-
-    // Step 3 — delivery
-    activateStep(3);
-    await sleep(600);
-    completeStep(3);
-
-    const finalEl = document.getElementById('final-result');
-    if (result.qualified) {
-      finalEl.className = 'final-result qualified visible';
-      finalEl.innerHTML = `
-        <div class="final-title">✅ Lead Qualified — WhatsApp Sent</div>
-        <div class="final-sub">Score ${result.score}/100 · ${result.tier?.toUpperCase()} · Delivered to business owner</div>`;
-    } else {
-      finalEl.className = 'final-result rejected visible';
-      finalEl.innerHTML = `
-        <div class="final-title" style="color:var(--muted)">❌ Lead Not Qualified</div>
-        <div class="final-sub">Score ${result.score}/100 · Below threshold of 70</div>`;
-    }
-
-    // Save to local leads
-    leads.push({
-      name, email, phone, location, message, source,
-      company:   result.data?.company  || null,
-      jobTitle:  result.data?.jobTitle || null,
-      industry:  result.data?.industry || null,
-      score:     result.score,
-      tier:      result.tier,
-      qualified: result.qualified,
-      reason:    result.reason,
-      processedAt: new Date().toISOString(),
-    });
-    localStorage.setItem('lf_leads', JSON.stringify(leads));
-
-    btn.disabled = false;
-    btn.textContent = '⚡ Process Lead';
   }
-
-  function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-  // ── Boot ─────────────────────────────────────────────────────────────────
-  renderTable();
-  document.getElementById('api-endpoint-display').textContent = API_BASE + '/api/lead';
 </script>
 </body>
 </html>
