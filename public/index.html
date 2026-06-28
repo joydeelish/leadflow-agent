@@ -1,209 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>LeadFlow Agent</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-  :root {
-    --bg:#F7F8FA;--surface:#FFFFFF;--border:#E4E7EC;--text:#0F1117;--muted:#6B7280;--faint:#9CA3AF;
-    --accent:#2563EB;--accent-light:#EFF6FF;--accent-mid:#BFDBFE;
-    --hot:#DC2626;--hot-bg:#FEF2F2;--warm:#D97706;--warm-bg:#FFFBEB;
-    --cold:#6B7280;--cold-bg:#F9FAFB;--success:#059669;--success-bg:#ECFDF5;--usdc:#2775CA;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+:root{
+  --bg:#F7F8FA;--surface:#fff;--border:#E4E7EC;--text:#0F1117;--muted:#6B7280;--faint:#9CA3AF;
+  --accent:#2563EB;--accent-light:#EFF6FF;--accent-mid:#BFDBFE;
+  --hot:#DC2626;--hot-bg:#FEF2F2;--warm:#D97706;--warm-bg:#FFFBEB;
+  --cold:#6B7280;--cold-bg:#F9FAFB;--green:#059669;--green-bg:#ECFDF5;--usdc:#2775CA;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-  /* Nav */
-  nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:56px;
-    display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-  .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:-.3px}
-  .brand-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
-  @keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
-  .nav-badge{font-size:11px;font-weight:500;color:var(--usdc);background:#EFF6FF;
-    border:1px solid var(--accent-mid);padding:3px 8px;border-radius:20px;font-family:'JetBrains Mono',monospace}
+/* Nav */
+nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;height:56px;
+  display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;letter-spacing:-.3px}
+.dot{width:8px;height:8px;background:var(--accent);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(1.3)}}
+.nav-pill{font-size:11px;font-weight:500;color:var(--usdc);background:#EFF6FF;
+  border:1px solid var(--accent-mid);padding:3px 10px;border-radius:20px;font-family:'JetBrains Mono',monospace}
 
-  /* Tabs */
-  .tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);padding:0 32px}
-  .tab{padding:14px 20px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;
-    border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s}
-  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-  .tab:hover:not(.active){color:var(--text)}
-  .tab-panel{display:none}.tab-panel.active{display:block}
+/* Tabs */
+.tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:0 32px;display:flex}
+.tab{padding:14px 20px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;
+  border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .15s;user-select:none}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:hover:not(.active){color:var(--text)}
+.tab-panel{display:none}.tab-panel.active{display:block}
 
-  /* Layout */
-  .layout{display:grid;grid-template-columns:380px 1fr;min-height:calc(100vh - 100px)}
-  .left{background:var(--surface);border-right:1px solid var(--border);padding:28px 24px;
-    display:flex;flex-direction:column;gap:20px}
-  .right{padding:28px 32px;display:flex;flex-direction:column;gap:20px}
+/* Layout */
+.layout{display:grid;grid-template-columns:380px 1fr;min-height:calc(100vh - 100px)}
+.left{background:var(--surface);border-right:1px solid var(--border);padding:28px 24px;
+  display:flex;flex-direction:column;gap:20px}
+.right{padding:28px 32px;display:flex;flex-direction:column;gap:20px}
 
-  /* Form */
-  .panel-title{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
-  .fg{display:flex;flex-direction:column;gap:6px}
-  label{font-size:13px;font-weight:500;color:var(--muted)}
-  input,textarea,select{font-family:'Inter',sans-serif;font-size:14px;border:1px solid var(--border);
-    border-radius:8px;padding:10px 12px;background:var(--bg);color:var(--text);
-    transition:border-color .15s,box-shadow .15s;outline:none;width:100%}
-  input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1);background:#fff}
-  textarea{resize:vertical;min-height:72px}
+/* Forms */
+.section-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--faint)}
+.fg{display:flex;flex-direction:column;gap:6px}
+label{font-size:13px;font-weight:500;color:var(--muted)}
+input,textarea,select{font-family:'Inter',sans-serif;font-size:14px;border:1px solid var(--border);
+  border-radius:8px;padding:10px 12px;background:var(--bg);color:var(--text);
+  transition:border-color .15s,box-shadow .15s;outline:none;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(37,99,235,.1);background:#fff}
+textarea{resize:vertical;min-height:72px}
 
-  .btn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;
-    font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
-    display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
-  .btn:hover:not(:disabled){background:#1D4ED8}
-  .btn:disabled{background:#93C5FD;cursor:not-allowed}
-  .btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent-mid)}
-  .btn-outline:hover:not(:disabled){background:var(--accent-light)}
+/* Buttons */
+.btn{width:100%;padding:12px;background:var(--accent);color:#fff;border:none;border-radius:8px;
+  font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;
+  display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.btn:hover:not(:disabled){background:#1D4ED8}
+.btn:active:not(:disabled){transform:scale(.99)}
+.btn:disabled{background:#93C5FD;cursor:not-allowed}
+.btn-fb{background:#1877F2}.btn-fb:hover:not(:disabled){background:#166FE5}
+.btn-outline{background:transparent;color:var(--accent);border:1px solid var(--accent-mid);width:auto;padding:8px 16px}
+.btn-outline:hover:not(:disabled){background:var(--accent-light)}
+.btn-sm{font-size:13px;padding:9px 16px;width:auto}
 
-  /* Pipeline */
-  .pipe-step{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;
-    border:1px solid var(--border);background:var(--bg);transition:all .3s}
-  .pipe-step.active{border-color:var(--accent);background:var(--accent-light)}
-  .pipe-step.done{border-color:#A7F3D0;background:var(--success-bg)}
-  .pipe-step.error{border-color:#FECACA;background:var(--hot-bg)}
-  .step-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;
-    justify-content:center;font-size:14px;flex-shrink:0;background:var(--border)}
-  .pipe-step.active .step-icon{background:var(--accent)}
-  .pipe-step.done .step-icon{background:var(--success)}
-  .pipe-step.error .step-icon{background:var(--hot)}
-  .step-name{font-size:13px;font-weight:600}
-  .step-detail{font-size:11px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
-  .step-status{font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
-  .pipe-step.active .step-status{color:var(--accent)}
-  .pipe-step.done .step-status{color:var(--success)}
-  .pipe-step.error .step-status{color:var(--hot)}
-  @keyframes spin{to{transform:rotate(360deg)}}
-  .spin{animation:spin .8s linear infinite;display:inline-block}
+/* Pipeline */
+.pipe-step{display:flex;align-items:center;gap:12px;padding:12px;border-radius:8px;
+  border:1px solid var(--border);background:var(--bg);transition:all .3s}
+.pipe-step.active{border-color:var(--accent);background:var(--accent-light)}
+.pipe-step.done{border-color:#A7F3D0;background:var(--green-bg)}
+.pipe-step.error{border-color:#FECACA;background:var(--hot-bg)}
+.step-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;
+  justify-content:center;font-size:15px;flex-shrink:0;background:var(--border);color:#fff}
+.pipe-step.active .step-icon{background:var(--accent)}
+.pipe-step.done .step-icon{background:var(--green)}
+.pipe-step.error .step-icon{background:var(--hot)}
+.step-name{font-size:13px;font-weight:600}
+.step-detail{font-size:11px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace}
+.step-stat{font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
+.pipe-step.active .step-stat{color:var(--accent)}
+.pipe-step.done .step-stat{color:var(--green)}
+.pipe-step.error .step-stat{color:var(--hot)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{animation:spin .8s linear infinite;display:inline-block}
 
-  /* Stats */
-  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-  .stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
-  .stat-label{font-size:12px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
-  .stat-val{font-size:28px;font-weight:700;letter-spacing:-.5px;margin-top:6px;line-height:1}
-  .stat-sub{font-size:11px;color:var(--faint);margin-top:4px;font-family:'JetBrains Mono',monospace}
+/* Stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px 20px}
+.stat-label{font-size:11px;font-weight:500;color:var(--faint);text-transform:uppercase;letter-spacing:.06em}
+.stat-val{font-size:28px;font-weight:700;letter-spacing:-.5px;margin-top:6px;line-height:1}
+.stat-sub{font-size:11px;color:var(--faint);margin-top:4px;font-family:'JetBrains Mono',monospace}
 
-  /* Table */
-  .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
-  .card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-  .card-title{font-size:14px;font-weight:600}
-  table{width:100%;border-collapse:collapse;font-size:13px}
-  th{text-align:left;padding:10px 16px;font-size:11px;font-weight:600;text-transform:uppercase;
-    letter-spacing:.06em;color:var(--faint);background:var(--bg);border-bottom:1px solid var(--border)}
-  td{padding:14px 16px;border-bottom:1px solid var(--border)}
-  tr:last-child td{border-bottom:none}
-  tr:hover td{background:var(--bg)}
-  .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;
-    font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.04em}
-  .hot{background:var(--hot-bg);color:var(--hot)}
-  .warm{background:var(--warm-bg);color:var(--warm)}
-  .cold{background:var(--cold-bg);color:var(--cold)}
-  .yes{background:var(--success-bg);color:var(--success)}
-  .no{background:var(--cold-bg);color:var(--cold)}
-  .mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--usdc);
-    background:#EFF6FF;padding:2px 6px;border-radius:4px}
-  .score-wrap{display:flex;align-items:center;gap:8px}
-  .score-bar{width:60px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
-  .score-fill{height:100%;border-radius:2px;transition:width .5s}
+/* Card / Table */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:14px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:10px 16px;font-size:11px;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;color:var(--faint);background:var(--bg);border-bottom:1px solid var(--border)}
+td{padding:13px 16px;border-bottom:1px solid var(--border)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg)}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;
+  font-size:11px;font-weight:600;letter-spacing:.03em}
+.hot{background:var(--hot-bg);color:var(--hot)}
+.warm{background:var(--warm-bg);color:var(--warm)}
+.cold{background:var(--cold-bg);color:var(--cold)}
+.yes{background:var(--green-bg);color:var(--green)}
+.no{background:var(--cold-bg);color:var(--cold)}
+.mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--usdc);
+  background:#EFF6FF;padding:2px 7px;border-radius:4px}
+.score-wrap{display:flex;align-items:center;gap:8px}
+.score-bar{width:56px;height:4px;background:var(--border);border-radius:2px;overflow:hidden}
+.score-fill{height:100%;border-radius:2px;transition:width .6s}
 
-  /* Result */
-  .result-card{border-radius:12px;border:1px solid var(--border);padding:20px;
-    background:var(--surface);animation:slideIn .3s ease}
-  @keyframes slideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-  .result-card.qualified{border-color:#A7F3D0;background:var(--success-bg)}
-  .result-hl{font-size:15px;font-weight:700;margin-bottom:8px}
-  .result-detail{font-size:13px;color:var(--muted);line-height:1.6}
-  .result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
-  .ri-label{font-size:11px;color:var(--faint);font-weight:500}
-  .ri-val{font-size:13px;font-weight:600}
+/* Result card */
+.result-card{border-radius:12px;border:1px solid var(--border);padding:18px;
+  background:var(--surface);animation:slideIn .25s ease}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.result-card.qualified{border-color:#A7F3D0;background:var(--green-bg)}
+.result-hl{font-size:14px;font-weight:700;margin-bottom:6px}
+.result-body{font-size:13px;color:var(--muted);line-height:1.6}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.ri-label{font-size:11px;color:var(--faint);font-weight:500}
+.ri-val{font-size:13px;font-weight:600;margin-top:1px}
 
-  /* Onboarding */
-  .onboard-layout{max-width:680px;margin:40px auto;padding:0 24px}
-  .onboard-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px}
-  .onboard-title{font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:4px}
-  .onboard-sub{font-size:14px;color:var(--muted);margin-bottom:28px}
-  .form-cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  .success-box{background:var(--success-bg);border:1px solid #A7F3D0;border-radius:12px;
-    padding:24px;margin-top:24px;animation:slideIn .3s ease}
-  .success-title{font-size:15px;font-weight:700;color:var(--success);margin-bottom:12px}
-  .webhook-url{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);
-    border:1px solid var(--border);padding:10px 12px;border-radius:8px;word-break:break-all;
-    color:var(--accent);margin:8px 0}
-  .biz-list{display:flex;flex-direction:column;gap:12px;margin-top:24px}
-  .biz-card{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:16px 20px;
-    display:flex;align-items:center;justify-content:space-between}
-  .biz-name{font-weight:600;font-size:14px}
-  .biz-meta{font-size:12px;color:var(--muted);margin-top:2px}
+/* Onboarding page */
+.page{max-width:700px;margin:40px auto;padding:0 24px}
+.page-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px}
+.page-title{font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:4px}
+.page-sub{font-size:14px;color:var(--muted);margin-bottom:28px;line-height:1.6}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-stack{display:flex;flex-direction:column;gap:14px}
+.success-box{background:var(--green-bg);border:1px solid #A7F3D0;border-radius:12px;
+  padding:22px;margin-top:22px;animation:slideIn .25s ease}
+.success-title{font-size:15px;font-weight:700;color:var(--green);margin-bottom:10px}
+.code-box{font-family:'JetBrains Mono',monospace;font-size:12px;background:var(--bg);
+  border:1px solid var(--border);padding:10px 14px;border-radius:8px;
+  word-break:break-all;color:var(--accent);margin:8px 0;line-height:1.6}
+.biz-list{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+.biz-item{background:var(--bg);border:1px solid var(--border);border-radius:10px;
+  padding:14px 18px;display:flex;align-items:center;justify-content:space-between}
+.biz-name{font-weight:600;font-size:14px}
+.biz-meta{font-size:12px;color:var(--muted);margin-top:2px}
+.biz-badge{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
 
-  .empty{padding:48px 20px;text-align:center;color:var(--faint)}
-  .empty-icon{font-size:28px;margin-bottom:10px}
-  .empty-title{font-size:14px;font-weight:600;color:var(--muted)}
-  .empty-sub{font-size:13px;margin-top:4px}
+/* Divider */
+.divider{display:flex;align-items:center;gap:12px;margin:2px 0}
+.divider-line{flex:1;height:1px;background:var(--border)}
+.divider-text{font-size:11px;color:var(--faint);font-weight:500;white-space:nowrap}
 
-  .divider{display:flex;align-items:center;gap:12px;margin:4px 0}
-  .divider-line{flex:1;height:1px;background:var(--border)}
-  .divider-text{font-size:11px;color:var(--faint);font-weight:500}
+/* FB connect */
+.fb-connect-box{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:24px}
+.fb-connect-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.fb-connect-sub{font-size:13px;color:var(--muted);margin-bottom:18px;line-height:1.6}
+.fb-connected{display:flex;align-items:center;gap:10px;padding:12px 16px;
+  background:var(--green-bg);border:1px solid #A7F3D0;border-radius:10px;font-size:13px;font-weight:600;color:var(--green)}
+.step-guide{display:flex;flex-direction:column;gap:16px}
+.step-row{display:flex;gap:14px;align-items:flex-start}
+.step-num{width:26px;height:26px;background:var(--accent-light);color:var(--accent);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:1px}
+.step-content{flex:1}
+.step-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.step-desc{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* Empty */
+.empty{padding:48px 20px;text-align:center;color:var(--faint)}
+.empty-icon{font-size:28px;margin-bottom:10px}
+.empty-title{font-size:14px;font-weight:600;color:var(--muted)}
+.empty-sub{font-size:13px;margin-top:4px}
+
+/* Info box */
+.info-box{background:var(--accent-light);border:1px solid var(--accent-mid);border-radius:10px;padding:14px 16px;font-size:13px;color:var(--muted);line-height:1.6}
+.info-box strong{color:var(--text)}
 </style>
 </head>
 <body>
 
 <nav>
-  <div class="brand"><div class="brand-dot"></div>LeadFlow Agent</div>
-  <span class="nav-badge">Arc Testnet · USDC</span>
+  <div class="brand"><div class="dot"></div>LeadFlow Agent</div>
+  <span class="nav-pill">Arc Testnet · USDC</span>
 </nav>
 
 <div class="tabs">
-  <div class="tab active" onclick="showTab('demo')">🧪 Live Demo</div>
-  <div class="tab" onclick="showTab('onboard')">🏢 Business Setup</div>
-  <div class="tab" onclick="showTab('webhook')">🔗 Facebook Webhook</div>
+  <div class="tab active" id="tab-btn-demo" onclick="showTab('demo',this)">🧪 Live Demo</div>
+  <div class="tab" id="tab-btn-onboard" onclick="showTab('onboard',this)">🏢 Business Setup</div>
+  <div class="tab" id="tab-btn-connect" onclick="showTab('connect',this)">📘 Connect Facebook</div>
 </div>
 
-<!-- ── DEMO TAB ── -->
+<!-- ══ DEMO TAB ══════════════════════════════════════════════════════════ -->
 <div id="tab-demo" class="tab-panel active">
 <div class="layout">
   <div class="left">
-    <!-- Business Selector -->
+
     <div>
-      <div class="panel-title" style="margin-bottom:12px">Route to Business</div>
+      <div class="section-label" style="margin-bottom:10px">Route to Business</div>
       <div class="fg">
-        <label>Select Business (optional)</label>
-        <select id="bizSelect" onchange="loadBizInfo()">
-          <option value="">— Default (Real Estate) —</option>
+        <label>Select Business</label>
+        <select id="bizSelect" onchange="onBizChange()">
+          <option value="">— Default pipeline —</option>
         </select>
       </div>
-      <div id="bizInfo" style="margin-top:8px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace"></div>
+      <div id="bizInfo" style="margin-top:6px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;min-height:16px"></div>
     </div>
 
     <div class="divider"><div class="divider-line"></div><div class="divider-text">LEAD DETAILS</div><div class="divider-line"></div></div>
 
-    <!-- Lead Form -->
-    <div style="display:flex;flex-direction:column;gap:12px">
-      <div class="fg"><label>Full Name</label><input id="name" placeholder="Chidi Okeke" /></div>
-      <div class="fg"><label>Email</label><input id="email" type="email" placeholder="chidi@example.com" /></div>
-      <div class="fg"><label>Phone</label><input id="phone" placeholder="+2348012345678" /></div>
-      <div class="fg"><label>Message</label><textarea id="message" placeholder="Tell us about your needs..."></textarea></div>
-      <div class="fg"><label>Location</label><input id="location" placeholder="Lagos, Nigeria" /></div>
+    <div class="form-stack">
+      <div class="fg"><label>Full Name</label><input id="f-name" placeholder="Chidi Okeke"/></div>
+      <div class="fg"><label>Email Address</label><input id="f-email" type="email" placeholder="chidi@example.com"/></div>
+      <div class="fg"><label>Phone Number</label><input id="f-phone" placeholder="+2348012345678"/></div>
+      <div class="fg"><label>Message</label><textarea id="f-message" placeholder="Tell us about your needs..."></textarea></div>
+      <div class="fg"><label>Location</label><input id="f-location" placeholder="Lagos, Nigeria"/></div>
       <button class="btn" id="submitBtn" onclick="submitLead()"><span id="btnText">Process Lead</span></button>
     </div>
 
-    <!-- Pipeline -->
     <div>
-      <div class="panel-title" style="margin-bottom:10px">Pipeline Status</div>
+      <div class="section-label" style="margin-bottom:10px">Pipeline Status</div>
       <div style="display:flex;flex-direction:column;gap:8px">
-        <div class="pipe-step" id="s-enrich">
-          <div class="step-icon" id="i-enrich">🔍</div>
-          <div style="flex:1"><div class="step-name">Enrichment Agent</div><div class="step-detail" id="d-enrich">Waiting...</div></div>
-          <div class="step-status" id="st-enrich">—</div>
+        <div class="pipe-step" id="ps-enrich">
+          <div class="step-icon" id="pi-enrich">🔍</div>
+          <div style="flex:1"><div class="step-name">Enrichment Agent</div><div class="step-detail" id="pd-enrich">Waiting for lead...</div></div>
+          <div class="step-stat" id="pst-enrich">—</div>
         </div>
-        <div class="pipe-step" id="s-score">
-          <div class="step-icon" id="i-score">⚡</div>
-          <div style="flex:1"><div class="step-name">Scoring Agent</div><div class="step-detail" id="d-score">Waiting...</div></div>
-          <div class="step-status" id="st-score">—</div>
+        <div class="pipe-step" id="ps-score">
+          <div class="step-icon" id="pi-score">⚡</div>
+          <div style="flex:1"><div class="step-name">Scoring Agent</div><div class="step-detail" id="pd-score">Waiting for lead...</div></div>
+          <div class="step-stat" id="pst-score">—</div>
         </div>
-        <div class="pipe-step" id="s-deliver">
-          <div class="step-icon" id="i-deliver">📲</div>
-          <div style="flex:1"><div class="step-name">WhatsApp Delivery</div><div class="step-detail" id="d-deliver">Waiting...</div></div>
-          <div class="step-status" id="st-deliver">—</div>
+        <div class="pipe-step" id="ps-deliver">
+          <div class="step-icon" id="pi-deliver">📲</div>
+          <div style="flex:1"><div class="step-name">WhatsApp Delivery</div><div class="step-detail" id="pd-deliver">Waiting for lead...</div></div>
+          <div class="step-stat" id="pst-deliver">—</div>
         </div>
       </div>
     </div>
@@ -212,361 +236,457 @@
   </div>
 
   <div class="right">
-    <!-- Stats -->
     <div class="stats">
-      <div class="stat"><div class="stat-label">Total Leads</div><div class="stat-val" id="s-total">0</div><div class="stat-sub">processed</div></div>
-      <div class="stat"><div class="stat-label">Qualified</div><div class="stat-val" id="s-qual" style="color:var(--success)">0</div><div class="stat-sub" id="s-rate">—% rate</div></div>
-      <div class="stat"><div class="stat-label">Hot Leads</div><div class="stat-val" id="s-hot" style="color:var(--hot)">0</div><div class="stat-sub">score ≥ 80</div></div>
-      <div class="stat"><div class="stat-label">USDC Spent</div><div class="stat-val" id="s-usdc" style="color:var(--usdc)">$0.00</div><div class="stat-sub">$0.02/lead</div></div>
+      <div class="stat"><div class="stat-label">Total Leads</div><div class="stat-val" id="st-total">0</div><div class="stat-sub">processed</div></div>
+      <div class="stat"><div class="stat-label">Qualified</div><div class="stat-val" id="st-qual" style="color:var(--green)">0</div><div class="stat-sub" id="st-rate">—% rate</div></div>
+      <div class="stat"><div class="stat-label">Hot Leads</div><div class="stat-val" id="st-hot" style="color:var(--hot)">0</div><div class="stat-sub">score ≥ 80</div></div>
+      <div class="stat"><div class="stat-label">USDC Spent</div><div class="stat-val" id="st-usdc" style="color:var(--usdc)">$0.00</div><div class="stat-sub">$0.02 per lead</div></div>
     </div>
 
-    <!-- Leads Table -->
     <div class="card" style="flex:1">
-      <div class="card-header"><div class="card-title">Lead Results</div><div id="lcount" style="font-size:12px;color:var(--faint);font-family:'JetBrains Mono',monospace">0 leads</div></div>
+      <div class="card-header">
+        <div class="card-title">Lead Results</div>
+        <div id="lcount" style="font-size:12px;color:var(--faint);font-family:'JetBrains Mono',monospace">0 leads</div>
+      </div>
       <div id="tableWrap">
-        <div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No leads yet</div><div class="empty-sub">Submit a lead to see the pipeline in action</div></div>
+        <div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No leads yet</div><div class="empty-sub">Submit a lead above to start the pipeline</div></div>
       </div>
     </div>
   </div>
 </div>
 </div>
 
-<!-- ── ONBOARD TAB ── -->
+<!-- ══ ONBOARD TAB ══════════════════════════════════════════════════════ -->
 <div id="tab-onboard" class="tab-panel">
-<div class="onboard-layout">
-  <div class="onboard-card">
-    <div class="onboard-title">Register Your Business</div>
-    <div class="onboard-sub">Set up your lead pipeline in 30 seconds. Each business gets a unique webhook URL and custom scoring logic for your industry.</div>
+<div class="page">
+  <div class="page-card">
+    <div class="page-title">Register Your Business</div>
+    <div class="page-sub">Set up your pipeline in under a minute. Each business gets its own AI scoring logic, qualify threshold, and WhatsApp delivery — tailored to your industry.</div>
 
-    <div style="display:flex;flex-direction:column;gap:16px">
-      <div class="form-cols">
-        <div class="fg"><label>Business Name</label><input id="biz-name" placeholder="Apex Properties Ltd" /></div>
-        <div class="fg"><label>WhatsApp Number</label><input id="biz-wa" placeholder="+2348012345678" /></div>
+    <div class="form-stack">
+      <div class="form-row">
+        <div class="fg"><label>Business Name</label><input id="b-name" placeholder="Apex Properties Ltd"/></div>
+        <div class="fg"><label>WhatsApp Number</label><input id="b-wa" placeholder="+2348012345678"/></div>
       </div>
-      <div class="form-cols">
+      <div class="form-row">
         <div class="fg">
           <label>Industry</label>
-          <select id="biz-industry">
-            <option value="real_estate">Real Estate</option>
-            <option value="saas">SaaS / Software</option>
-            <option value="recruitment">Recruitment / HR</option>
-            <option value="legal">Legal Services</option>
-            <option value="finance">Finance / Fintech</option>
-            <option value="ecommerce">E-commerce</option>
+          <select id="b-industry">
+            <option value="real_estate">🏠 Real Estate</option>
+            <option value="saas">💻 SaaS / Software</option>
+            <option value="recruitment">👥 Recruitment / HR</option>
+            <option value="legal">⚖️ Legal Services</option>
+            <option value="finance">💰 Finance / Fintech</option>
+            <option value="ecommerce">🛒 E-commerce</option>
           </select>
         </div>
-        <div class="fg"><label>Qualify Threshold (0–100)</label><input id="biz-threshold" type="number" placeholder="70" min="0" max="100" /></div>
+        <div class="fg">
+          <label>Qualify Threshold (0–100)</label>
+          <input id="b-threshold" type="number" placeholder="70" min="0" max="100"/>
+          <span style="font-size:11px;color:var(--faint);margin-top:3px">Leads scoring above this are delivered to you</span>
+        </div>
       </div>
-      <button class="btn" id="onboardBtn" onclick="registerBusiness()"><span id="onboardBtnText">Register Business</span></button>
+      <button class="btn" id="onboardBtn" onclick="registerBusiness()"><span id="onboardBtnText">Register Business →</span></button>
     </div>
 
     <div id="onboardResult" style="display:none"></div>
   </div>
 
-  <!-- Registered Businesses -->
   <div style="margin-top:28px">
-    <div style="font-size:14px;font-weight:600;margin-bottom:12px">Registered Businesses</div>
-    <div id="bizList"><div class="empty"><div class="empty-icon">🏢</div><div class="empty-title">No businesses yet</div><div class="empty-sub">Register your first business above</div></div></div>
-  </div>
-</div>
-</div>
-
-<!-- ── WEBHOOK TAB ── -->
-<div id="tab-webhook" class="tab-panel">
-<div class="onboard-layout">
-  <div class="onboard-card">
-    <div class="onboard-title">Facebook Lead Ads Webhook</div>
-    <div class="onboard-sub">Connect your Facebook Lead Ads to automatically send new leads through the LeadFlow pipeline.</div>
-
-    <div style="display:flex;flex-direction:column;gap:20px">
-      <div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Step 1 — Add to your .env</div>
-        <div class="webhook-url">FB_VERIFY_TOKEN=leadflow_verify_2026</div>
-        <div style="font-size:12px;color:var(--muted)">You can change this to any string you like.</div>
-      </div>
-
-      <div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Step 2 — Deploy your server</div>
-        <div style="font-size:13px;color:var(--muted)">Deploy to Railway (or any public URL) so Facebook can reach your webhook. See the deployment guide in README.</div>
-      </div>
-
-      <div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Step 3 — Configure in Meta Dashboard</div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.7">
-          1. Go to <strong>developers.facebook.com</strong> → Your App → <strong>Webhooks</strong><br>
-          2. Click <strong>Add Callback URL</strong><br>
-          3. Callback URL: <code style="background:var(--bg);padding:2px 6px;border-radius:4px">https://your-domain.railway.app/api/webhook</code><br>
-          4. Verify Token: <code style="background:var(--bg);padding:2px 6px;border-radius:4px">leadflow_verify_2026</code><br>
-          5. Subscribe to <strong>leadgen</strong> field<br>
-          6. Also go to <strong>WhatsApp → Configuration</strong> and subscribe to <strong>leads</strong>
-        </div>
-      </div>
-
-      <div>
-        <div style="font-size:13px;font-weight:600;margin-bottom:8px">Step 4 — Map your Ad to a Business</div>
-        <div style="font-size:13px;color:var(--muted)">When creating your Facebook Lead Ad, set the <strong>Ad Name</strong> to your Business ID (e.g. <code style="background:var(--bg);padding:2px 6px;border-radius:4px">biz_abc123</code>) so LeadFlow routes leads to the right business config.</div>
-      </div>
-
-      <div style="background:var(--success-bg);border:1px solid #A7F3D0;border-radius:10px;padding:16px">
-        <div style="font-size:13px;font-weight:600;color:var(--success);margin-bottom:4px">✓ How it works</div>
-        <div style="font-size:13px;color:var(--muted);line-height:1.7">
-          Facebook sends a lead → LeadFlow fetches the full data from Meta Graph API → 
-          Enrichment Agent pays $0.01 USDC → Scoring Agent pays $0.01 USDC → 
-          Qualified leads are sent to your WhatsApp instantly.
-        </div>
-      </div>
+    <div style="font-size:14px;font-weight:600;margin-bottom:12px">Your Businesses</div>
+    <div id="bizList">
+      <div class="empty"><div class="empty-icon">🏢</div><div class="empty-title">No businesses registered yet</div><div class="empty-sub">Fill in the form above to get started</div></div>
     </div>
   </div>
 </div>
 </div>
 
+<!-- ══ CONNECT FACEBOOK TAB ══════════════════════════════════════════════ -->
+<div id="tab-connect" class="tab-panel">
+<div class="page">
+
+  <!-- Step 1: Select business -->
+  <div class="page-card" style="margin-bottom:20px">
+    <div class="page-title">Connect Facebook Lead Ads</div>
+    <div class="page-sub">Connect your Facebook Ad account so leads flow directly into your LeadFlow pipeline — no manual exports, no spreadsheets.</div>
+
+    <div class="fg" style="margin-bottom:16px">
+      <label>Which business are you connecting?</label>
+      <select id="fb-biz-select">
+        <option value="">— Select a business first —</option>
+      </select>
+    </div>
+
+    <div id="fb-connect-area" style="display:none">
+      <!-- Not connected state -->
+      <div id="fb-not-connected">
+        <div class="fb-connect-box" style="margin-bottom:16px">
+          <div class="fb-connect-title">📘 Connect your Facebook Page</div>
+          <div class="fb-connect-sub">Click below to log into Facebook and grant LeadFlow access to your Lead Ads. We only request read access to your leads — we never post or manage your ads.</div>
+          <button class="btn btn-fb" onclick="connectFacebook()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            Connect with Facebook
+          </button>
+        </div>
+
+        <div class="info-box">
+          <strong>What access do we request?</strong><br>
+          <code style="font-size:12px">leads_retrieval</code> — read new leads from your forms<br>
+          <code style="font-size:12px">pages_read_engagement</code> — identify which page your ads belong to<br>
+          <code style="font-size:12px">pages_manage_ads</code> — subscribe to lead notifications automatically
+        </div>
+      </div>
+
+      <!-- Connected state (hidden until OAuth completes) -->
+      <div id="fb-connected" style="display:none">
+        <div class="fb-connected">✓ Facebook connected — leads will flow automatically</div>
+        <div style="margin-top:16px">
+          <div style="font-size:13px;font-weight:600;margin-bottom:10px">Connected Pages</div>
+          <div id="fb-pages-list"></div>
+        </div>
+        <button class="btn btn-outline btn-sm" style="margin-top:16px" onclick="disconnectFacebook()">Disconnect Facebook</button>
+      </div>
+    </div>
+
+    <div id="fb-no-biz" style="color:var(--muted);font-size:13px;padding:12px 0">
+      Register a business first in the <a href="#" onclick="showTab('onboard',document.getElementById('tab-btn-onboard'));return false" style="color:var(--accent)">Business Setup tab</a> before connecting Facebook.
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <div class="page-card">
+    <div style="font-size:15px;font-weight:700;margin-bottom:18px">How it works after you connect</div>
+    <div class="step-guide">
+      <div class="step-row">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">Someone clicks your Facebook Lead Ad</div>
+          <div class="step-desc">They fill in the instant form — name, email, phone, and any custom questions you set up in Ads Manager.</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">LeadFlow receives the lead instantly</div>
+          <div class="step-desc">Facebook notifies LeadFlow in real time. No delays, no manual CSV downloads.</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">AI agents qualify the lead</div>
+          <div class="step-desc">Enrichment Agent researches the person online ($0.01 USDC). Scoring Agent rates them 0–100 using your industry's criteria ($0.01 USDC).</div>
+        </div>
+      </div>
+      <div class="step-row">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">Qualified leads land on your WhatsApp</div>
+          <div class="step-desc">If the score is above your threshold, you get an instant WhatsApp message with the full lead profile, score, and reason. Unqualified leads are filtered out automatically.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
 <script>
-const API = "http://localhost:3000";
+// ── Dynamic API base — works locally and on Railway ──
+const API = window.location.hostname === 'localhost'
+  ? 'http://localhost:3000'
+  : window.location.origin;
+
 let leads = [];
 let businesses = [];
+let fbConnectedBizId = null;
 
-// ── Tabs ──
-function showTab(name) {
-  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-  document.getElementById("tab-" + name).classList.add("active");
-  event.target.classList.add("active");
-  if (name === "onboard") loadBusinesses();
-  if (name === "demo") loadBizSelector();
+// ── Tab switching ──────────────────────────────────────────────────────────
+function showTab(name, el) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+  if (name === 'onboard') loadBusinesses();
+  if (name === 'demo') loadBizSelector();
+  if (name === 'connect') loadFbBizSelector();
 }
 
-// ── Load businesses into selector ──
+// ── Business selector (demo tab) ──────────────────────────────────────────
 async function loadBizSelector() {
   try {
-    const res = await fetch(API + "/api/businesses");
+    const res  = await fetch(API + '/api/businesses');
     const data = await res.json();
     businesses = data.businesses || [];
-    const sel = document.getElementById("bizSelect");
-    sel.innerHTML = '<option value="">— Default (Real Estate) —</option>';
+    const sel  = document.getElementById('bizSelect');
+    sel.innerHTML = '<option value="">— Default pipeline —</option>';
     businesses.forEach(b => {
       sel.innerHTML += `<option value="${b.id}">${b.name} (${b.industryLabel})</option>`;
     });
   } catch(e) {}
 }
 
-function loadBizInfo() {
-  const id = document.getElementById("bizSelect").value;
+function onBizChange() {
+  const id  = document.getElementById('bizSelect').value;
   const biz = businesses.find(b => b.id === id);
-  const info = document.getElementById("bizInfo");
-  if (biz) {
-    info.textContent = `Threshold: ${biz.qualifyThreshold} · WhatsApp: ${biz.whatsappNumber} · ${biz.leadsProcessed} leads processed`;
-  } else {
-    info.textContent = "";
-  }
+  const el  = document.getElementById('bizInfo');
+  el.textContent = biz
+    ? `Threshold: ${biz.qualifyThreshold} · ${biz.leadsProcessed} leads · ${biz.leadsQualified} qualified`
+    : '';
 }
 
-// ── Pipeline steps ──
-function setStep(id, state, detail, status) {
-  const s = document.getElementById("s-" + id);
-  const i = document.getElementById("i-" + id);
-  const d = document.getElementById("d-" + id);
-  const st = document.getElementById("st-" + id);
-  s.className = "pipe-step " + (state || "");
-  if (detail) d.textContent = detail;
-  if (status) st.textContent = status;
-  const icons = { enrich: "🔍", score: "⚡", deliver: "📲" };
-  if (state === "active") i.innerHTML = '<span class="spin">⟳</span>';
-  else if (state === "done") i.textContent = "✓";
-  else if (state === "error") i.textContent = "✕";
-  else i.textContent = icons[id];
+// ── Pipeline helpers ───────────────────────────────────────────────────────
+function setStep(id, state, detail, stat) {
+  const icons = { enrich: '🔍', score: '⚡', deliver: '📲' };
+  document.getElementById('ps-' + id).className = 'pipe-step ' + (state || '');
+  if (detail) document.getElementById('pd-' + id).textContent = detail;
+  if (stat)   document.getElementById('pst-' + id).textContent = stat;
+  const icon = document.getElementById('pi-' + id);
+  if (state === 'active') icon.innerHTML = '<span class="spin">⟳</span>';
+  else if (state === 'done')  icon.textContent = '✓';
+  else if (state === 'error') icon.textContent = '✕';
+  else icon.textContent = icons[id];
 }
 
-function resetSteps() {
-  ["enrich","score","deliver"].forEach(id => setStep(id, "", "Waiting...", "—"));
-  document.getElementById("resultCard").style.display = "none";
+function resetPipeline() {
+  ['enrich','score','deliver'].forEach(id => setStep(id, '', 'Waiting for lead...', '—'));
+  document.getElementById('resultCard').style.display = 'none';
 }
 
-// ── Stats ──
+// ── Stats ──────────────────────────────────────────────────────────────────
 function updateStats() {
-  const total = leads.length;
-  const qual  = leads.filter(l => l.qualified).length;
-  const hot   = leads.filter(l => l.tier === "hot").length;
-  document.getElementById("s-total").textContent = total;
-  document.getElementById("s-qual").textContent  = qual;
-  document.getElementById("s-hot").textContent   = hot;
-  document.getElementById("s-usdc").textContent  = "$" + (total * 0.02).toFixed(2);
-  document.getElementById("s-rate").textContent  = (total ? Math.round(qual/total*100) : 0) + "% rate";
-  document.getElementById("lcount").textContent  = total + " lead" + (total !== 1 ? "s" : "");
+  const t = leads.length;
+  const q = leads.filter(l => l.qualified).length;
+  const h = leads.filter(l => l.tier === 'hot').length;
+  document.getElementById('st-total').textContent = t;
+  document.getElementById('st-qual').textContent  = q;
+  document.getElementById('st-hot').textContent   = h;
+  document.getElementById('st-usdc').textContent  = '$' + (t * 0.02).toFixed(2);
+  document.getElementById('st-rate').textContent  = (t ? Math.round(q/t*100) : 0) + '% rate';
+  document.getElementById('lcount').textContent   = t + ' lead' + (t !== 1 ? 's' : '');
 }
 
-// ── Table ──
+// ── Table ──────────────────────────────────────────────────────────────────
 function renderTable() {
-  const wrap = document.getElementById("tableWrap");
+  const wrap = document.getElementById('tableWrap');
   if (!leads.length) {
-    wrap.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No leads yet</div><div class="empty-sub">Submit a lead to see the pipeline in action</div></div>';
+    wrap.innerHTML = '<div class="empty"><div class="empty-icon">📋</div><div class="empty-title">No leads yet</div><div class="empty-sub">Submit a lead above to start the pipeline</div></div>';
     return;
   }
   const rows = [...leads].reverse().map(l => {
-    const col = l.score >= 80 ? "var(--hot)" : l.score >= 60 ? "var(--warm)" : "var(--cold)";
-    const tc  = l.tier === "hot" ? "hot" : l.tier === "warm" ? "warm" : "cold";
-    const te  = l.tier === "hot" ? "🔥" : l.tier === "warm" ? "⚡" : "❄️";
+    const col = l.score >= 80 ? 'var(--hot)' : l.score >= 60 ? 'var(--warm)' : 'var(--cold)';
+    const tc  = l.tier === 'hot' ? 'hot' : l.tier === 'warm' ? 'warm' : 'cold';
+    const te  = l.tier === 'hot' ? '🔥' : l.tier === 'warm' ? '⚡' : '❄️';
     return `<tr>
       <td><strong>${l.name}</strong><br><span style="color:var(--faint);font-size:12px">${l.email}</span></td>
-      <td>${l.company||"—"}<br><span style="color:var(--faint);font-size:12px">${l.jobTitle||""}</span></td>
-      <td><div class="score-wrap"><div class="score-bar"><div class="score-fill" style="width:${l.score}%;background:${col}"></div></div><span style="font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace;color:${col}">${l.score}</span></div></td>
+      <td>${l.company||'—'}<br><span style="color:var(--faint);font-size:12px">${l.jobTitle||''}</span></td>
+      <td><div class="score-wrap"><div class="score-bar"><div class="score-fill" style="width:${l.score}%;background:${col}"></div></div><span style="font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace;min-width:24px;color:${col}">${l.score}</span></div></td>
       <td><span class="badge ${tc}">${te} ${l.tier}</span></td>
       <td><span class="badge ${l.qualified?'yes':'no'}">${l.qualified?'✓ Yes':'✕ No'}</span></td>
       <td><span class="mono">$0.02 USDC</span></td>
       <td style="color:var(--faint);font-size:12px">${new Date(l.time).toLocaleTimeString()}</td>
     </tr>`;
-  }).join("");
+  }).join('');
   wrap.innerHTML = `<table><thead><tr><th>Lead</th><th>Company</th><th>Score</th><th>Tier</th><th>Qualified</th><th>Paid</th><th>Time</th></tr></thead><tbody>${rows}</tbody></table>`;
 }
 
-// ── Submit Lead ──
+// ── Submit Lead ────────────────────────────────────────────────────────────
 async function submitLead() {
-  const name     = document.getElementById("name").value.trim();
-  const email    = document.getElementById("email").value.trim();
-  const phone    = document.getElementById("phone").value.trim();
-  const message  = document.getElementById("message").value.trim();
-  const location = document.getElementById("location").value.trim();
-  const bizId    = document.getElementById("bizSelect").value;
+  const name     = document.getElementById('f-name').value.trim();
+  const email    = document.getElementById('f-email').value.trim();
+  const phone    = document.getElementById('f-phone').value.trim();
+  const message  = document.getElementById('f-message').value.trim();
+  const location = document.getElementById('f-location').value.trim();
+  const bizId    = document.getElementById('bizSelect').value;
 
-  if (!name || !email) { alert("Please enter at least a name and email."); return; }
+  if (!name || !email) { alert('Please enter at least a name and email.'); return; }
 
-  const btn = document.getElementById("submitBtn");
+  const btn = document.getElementById('submitBtn');
   btn.disabled = true;
-  document.getElementById("btnText").textContent = "Processing...";
-  resetSteps();
+  document.getElementById('btnText').textContent = 'Processing...';
+  resetPipeline();
 
-  setTimeout(() => setStep("enrich", "active", "Paying $0.01 USDC...", "paying"), 300);
+  setTimeout(() => setStep('enrich', 'active', 'Paying $0.01 USDC...', 'paying'), 300);
 
   try {
     const url = bizId ? `${API}/api/lead/${bizId}` : `${API}/api/lead`;
     const res  = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, email, phone, message, location, source: "LeadFlow Demo" })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, phone, message, location, source: 'LeadFlow Demo' })
     });
     const data = await res.json();
-    if (!res.ok) throw new Error(data.error || "Pipeline failed");
+    if (!res.ok) throw new Error(data.error || 'Pipeline failed');
 
     const r = data.result;
-    setStep("enrich", "done", `${r.data?.company||"Unknown"} · ${r.data?.jobTitle||"Unknown"}`, "$0.01 ✓");
+
+    setStep('enrich', 'done', `${r.data?.company||'Unknown'} · ${r.data?.jobTitle||'Unknown'}`, '$0.01 ✓');
 
     setTimeout(() => {
-      setStep("score", "active", "Paying $0.01 USDC...", "paying");
+      setStep('score', 'active', 'Paying $0.01 USDC...', 'paying');
       setTimeout(() => {
-        setStep("score", "done", `Score: ${r.score}/100 (${r.tier})`, "$0.01 ✓");
+        setStep('score', 'done', `Score: ${r.score}/100 (${r.tier})`, '$0.01 ✓');
         setTimeout(() => {
           if (r.qualified) {
-            setStep("deliver", "active", "Sending to business...", "sending");
-            setTimeout(() => setStep("deliver", "done", "Delivered via WhatsApp", "✓ sent"), 800);
+            setStep('deliver', 'active', 'Sending to WhatsApp...', 'sending');
+            setTimeout(() => setStep('deliver', 'done', 'Delivered to business', '✓ sent'), 900);
           } else {
-            setStep("deliver", "", "Lead did not qualify", "skipped");
+            setStep('deliver', '', 'Lead did not qualify', 'skipped');
           }
 
-          const card = document.getElementById("resultCard");
-          card.style.display = "block";
-          card.className = "result-card " + (r.qualified ? "qualified" : "rejected");
+          const card = document.getElementById('resultCard');
+          card.style.display = 'block';
+          card.className = 'result-card ' + (r.qualified ? 'qualified' : 'rejected');
           card.innerHTML = r.qualified
-            ? `<div class="result-hl">✅ Lead Qualified${data.business ? " → " + data.business : ""}</div>
-               <div class="result-detail">${r.reason}</div>
+            ? `<div class="result-hl">✅ Lead Qualified${data.business ? ' → ' + data.business : ''}</div>
+               <div class="result-body">${r.reason}</div>
                <div class="result-grid">
-                 <div><div class="ri-label">Company</div><div class="ri-val">${r.data?.company||"—"}</div></div>
+                 <div><div class="ri-label">Company</div><div class="ri-val">${r.data?.company||'—'}</div></div>
                  <div><div class="ri-label">Score</div><div class="ri-val">${r.score}/100</div></div>
-                 <div><div class="ri-label">Industry</div><div class="ri-val">${r.data?.industry||"—"}</div></div>
+                 <div><div class="ri-label">Industry</div><div class="ri-val">${r.data?.industry||'—'}</div></div>
                  <div><div class="ri-label">USDC paid</div><div class="ri-val">$0.02</div></div>
                </div>`
             : `<div class="result-hl">❌ Did Not Qualify</div>
-               <div class="result-detail">${r.reason}</div>
+               <div class="result-body">${r.reason}</div>
                <div style="margin-top:8px;font-size:12px;color:var(--faint);font-family:'JetBrains Mono',monospace">Score: ${r.score}/100 · $0.02 USDC spent</div>`;
 
-          leads.push({ name, email, company: r.data?.company, jobTitle: r.data?.jobTitle, score: r.score, tier: r.tier, qualified: r.qualified, time: Date.now() });
+          leads.push({ name, email, company: r.data?.company, jobTitle: r.data?.jobTitle,
+            score: r.score, tier: r.tier, qualified: r.qualified, time: Date.now() });
           updateStats();
           renderTable();
           btn.disabled = false;
-          document.getElementById("btnText").textContent = "Process Lead";
+          document.getElementById('btnText').textContent = 'Process Lead';
         }, 400);
-      }, 600);
+      }, 700);
     }, 500);
 
   } catch(err) {
-    setStep("enrich", "error", err.message, "failed");
-    const card = document.getElementById("resultCard");
-    card.style.display = "block";
-    card.className = "result-card rejected";
-    card.innerHTML = `<div class="result-hl">⚠️ Error</div><div class="result-detail">${err.message}<br><br>Make sure the LeadFlow server is running on port 3000.</div>`;
+    setStep('enrich', 'error', err.message, 'failed');
+    const card = document.getElementById('resultCard');
+    card.style.display = 'block';
+    card.className = 'result-card rejected';
+    card.innerHTML = `<div class="result-hl">⚠️ Error</div><div class="result-body">${err.message}<br><br>Make sure all three agents are running.</div>`;
     btn.disabled = false;
-    document.getElementById("btnText").textContent = "Process Lead";
+    document.getElementById('btnText').textContent = 'Process Lead';
   }
 }
 
-// ── Register Business ──
+// ── Register Business ──────────────────────────────────────────────────────
 async function registerBusiness() {
-  const name      = document.getElementById("biz-name").value.trim();
-  const industry  = document.getElementById("biz-industry").value;
-  const threshold = document.getElementById("biz-threshold").value || 70;
-  const wa        = document.getElementById("biz-wa").value.trim();
+  const name      = document.getElementById('b-name').value.trim();
+  const industry  = document.getElementById('b-industry').value;
+  const threshold = document.getElementById('b-threshold').value || 70;
+  const wa        = document.getElementById('b-wa').value.trim();
 
-  if (!name || !wa) { alert("Business name and WhatsApp number are required."); return; }
+  if (!name || !wa) { alert('Business name and WhatsApp number are required.'); return; }
 
-  const btn = document.getElementById("onboardBtn");
+  const btn = document.getElementById('onboardBtn');
   btn.disabled = true;
-  document.getElementById("onboardBtnText").textContent = "Registering...";
+  document.getElementById('onboardBtnText').textContent = 'Registering...';
 
   try {
-    const res  = await fetch(API + "/api/onboard", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
+    const res  = await fetch(API + '/api/onboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, industry, qualifyThreshold: threshold, whatsappNumber: wa })
     });
     const data = await res.json();
     if (!data.success) throw new Error(data.error);
-
     const b = data.business;
-    document.getElementById("onboardResult").style.display = "block";
-    document.getElementById("onboardResult").innerHTML = `
+
+    document.getElementById('onboardResult').style.display = 'block';
+    document.getElementById('onboardResult').innerHTML = `
       <div class="success-box">
-        <div class="success-title">✅ ${b.name} is ready!</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Your unique lead pipeline webhook:</div>
-        <div class="webhook-url">POST http://localhost:3000${b.webhookUrl}</div>
-        <div style="font-size:12px;color:var(--muted);margin-top:8px">
-          Business ID: <strong>${b.id}</strong> · Industry: <strong>${b.industry}</strong> · Threshold: <strong>${b.qualifyThreshold}</strong>
-        </div>
+        <div class="success-title">✅ ${b.name} is live!</div>
+        <div style="font-size:13px;color:var(--muted);margin-bottom:8px">Your unique lead pipeline endpoint:</div>
+        <div class="code-box">POST ${API}/api/lead/${b.id}</div>
+        <div style="font-size:12px;color:var(--muted)">Business ID: <strong>${b.id}</strong> · Industry: <strong>${b.industry}</strong> · Threshold: <strong>${b.qualifyThreshold}</strong></div>
+        <div style="margin-top:12px;font-size:13px;color:var(--muted)">→ Go to <a href="#" onclick="showTab('connect',document.getElementById('tab-btn-connect'));return false" style="color:var(--accent);font-weight:600">Connect Facebook</a> to link your Lead Ads.</div>
       </div>`;
 
     loadBusinesses();
     loadBizSelector();
+    loadFbBizSelector();
     btn.disabled = false;
-    document.getElementById("onboardBtnText").textContent = "Register Business";
+    document.getElementById('onboardBtnText').textContent = 'Register Business →';
   } catch(err) {
-    alert("Error: " + err.message);
+    alert('Error: ' + err.message);
     btn.disabled = false;
-    document.getElementById("onboardBtnText").textContent = "Register Business";
+    document.getElementById('onboardBtnText').textContent = 'Register Business →';
   }
 }
 
-// ── Load Business List ──
+// ── Load businesses list (onboard tab) ────────────────────────────────────
 async function loadBusinesses() {
   try {
-    const res  = await fetch(API + "/api/businesses");
+    const res  = await fetch(API + '/api/businesses');
     const data = await res.json();
-    const list = document.getElementById("bizList");
+    const list = document.getElementById('bizList');
     if (!data.businesses?.length) {
-      list.innerHTML = '<div class="empty"><div class="empty-icon">🏢</div><div class="empty-title">No businesses yet</div><div class="empty-sub">Register your first business above</div></div>';
+      list.innerHTML = '<div class="empty"><div class="empty-icon">🏢</div><div class="empty-title">No businesses registered yet</div><div class="empty-sub">Fill in the form above to get started</div></div>';
       return;
     }
-    list.innerHTML = data.businesses.map(b => `
-      <div class="biz-card">
+    list.innerHTML = '<div class="biz-list">' + data.businesses.map(b => `
+      <div class="biz-item">
         <div>
           <div class="biz-name">${b.name}</div>
           <div class="biz-meta">${b.industryLabel} · Threshold: ${b.qualifyThreshold} · ${b.leadsProcessed} leads · ${b.leadsQualified} qualified</div>
         </div>
-        <div style="text-align:right">
-          <div class="mono">${b.id}</div>
-          <div style="font-size:11px;color:var(--faint);margin-top:4px">${b.whatsappNumber}</div>
+        <div class="biz-badge">
+          <span class="mono">${b.id}</span>
+          <span style="font-size:11px;color:var(--faint)">${b.whatsappNumber}</span>
         </div>
-      </div>`).join("");
+      </div>`).join('') + '</div>';
   } catch(e) {}
 }
 
-// Init
+// ── Facebook Connect tab ───────────────────────────────────────────────────
+async function loadFbBizSelector() {
+  try {
+    const res  = await fetch(API + '/api/businesses');
+    const data = await res.json();
+    businesses = data.businesses || [];
+    const sel  = document.getElementById('fb-biz-select');
+    sel.innerHTML = '<option value="">— Select a business first —</option>';
+    businesses.forEach(b => {
+      sel.innerHTML += `<option value="${b.id}">${b.name} (${b.industryLabel})</option>`;
+    });
+    sel.onchange = onFbBizSelect;
+  } catch(e) {}
+}
+
+function onFbBizSelect() {
+  const id = document.getElementById('fb-biz-select').value;
+  document.getElementById('fb-connect-area').style.display = id ? 'block' : 'none';
+  document.getElementById('fb-no-biz').style.display = id ? 'none' : 'block';
+  if (id) {
+    fbConnectedBizId = id;
+    const biz = businesses.find(b => b.id === id);
+    const isConnected = biz?.fbPageId;
+    document.getElementById('fb-not-connected').style.display = isConnected ? 'none' : 'block';
+    document.getElementById('fb-connected').style.display    = isConnected ? 'block' : 'none';
+  }
+}
+
+function connectFacebook() {
+  if (!fbConnectedBizId) { alert('Please select a business first.'); return; }
+  // Redirect to backend OAuth flow
+  window.location.href = `${API}/api/facebook/auth?bizId=${fbConnectedBizId}`;
+}
+
+function disconnectFacebook() {
+  if (!confirm('Disconnect Facebook from this business?')) return;
+  fetch(API + '/api/facebook/disconnect', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bizId: fbConnectedBizId })
+  }).then(() => {
+    document.getElementById('fb-not-connected').style.display = 'block';
+    document.getElementById('fb-connected').style.display = 'none';
+  });
+}
+
+// ── Init ───────────────────────────────────────────────────────────────────
 loadBizSelector();
 </script>
 </body>
