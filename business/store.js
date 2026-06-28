@@ -1,6 +1,5 @@
 // Business Config Store
 // Reads and writes business configs to /data/businesses.json
-// Each business gets a unique ID, industry config, and webhook URL
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from "fs";
 import { fileURLToPath } from "url";
@@ -11,7 +10,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const DATA_DIR  = join(__dirname, "../data");
 const DB_PATH   = join(DATA_DIR, "businesses.json");
 
-// Industry scoring prompts
 export const INDUSTRY_PROMPTS = {
   real_estate: {
     label: "Real Estate",
@@ -77,6 +75,9 @@ export function createBusiness(name, industry, qualifyThreshold, whatsappNumber)
     qualifyThreshold: Number(qualifyThreshold) || 70,
     whatsappNumber,
     webhookUrl: `/api/lead/${id}`,
+    facebookConnected: false,
+    pageId: null,
+    pageName: null,
     createdAt: new Date().toISOString(),
     leadsProcessed: 0,
     leadsQualified: 0,
@@ -100,4 +101,15 @@ export function updateBusinessStats(id, qualified) {
   db[id].leadsProcessed++;
   if (qualified) db[id].leadsQualified++;
   saveDB(db);
+}
+
+export function updateBusinessFacebook(id, { pageId, pageToken, pageName }) {
+  const db = loadDB();
+  if (!db[id]) return;
+  db[id].facebookConnected = true;
+  db[id].pageId    = pageId;
+  db[id].pageName  = pageName;
+  db[id].pageToken = pageToken; // stored server-side only, never sent to frontend
+  saveDB(db);
+  console.log(`[Store] Facebook connected for ${db[id].name} — page: ${pageName}`);
 }
