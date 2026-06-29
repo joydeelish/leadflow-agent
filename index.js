@@ -21,10 +21,15 @@ app.use((req, res, next) => {
   next();
 });
 
+// Health check — Railway uses this to confirm the service is up
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok", service: "leadflow-main", ts: new Date().toISOString() });
+});
+
 // Serve frontend
 app.use(express.static(join(__dirname, "public")));
 
-// Inject runtime config so frontend works on any domain (localhost or Railway)
+// Inject runtime config so frontend works on any domain
 app.get("/config.js", (req, res) => {
   const appUrl = process.env.APP_URL || `http://localhost:${process.env.PORT || 3000}`;
   res.setHeader("Content-Type", "application/javascript");
@@ -40,7 +45,5 @@ app.listen(PORT, () => {
   console.log("");
   console.log("  LeadFlow Agent running");
   console.log("  Local:   http://localhost:" + PORT);
-  console.log("  Onboard: POST http://localhost:" + PORT + "/api/onboard");
-  console.log("  Webhook: POST http://localhost:" + PORT + "/api/webhook");
   console.log("");
 });
