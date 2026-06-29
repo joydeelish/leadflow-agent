@@ -70,6 +70,11 @@ app.post("/enrich", gateway.require("$0.01"), async (req, res) => {
   }
 });
 
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'enrichment-agent', ts: new Date().toISOString() });
+});
+
 const PORT = process.env.ENRICHMENT_PORT || 3001;
 app.listen(PORT, () => {
   console.log(`[Enrichment Agent] Running on port ${PORT} — $0.01 USDC/call`);
