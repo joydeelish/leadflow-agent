@@ -1,5 +1,14 @@
 // Business Onboarding API
-// POST /api/onboard — register a new business and get a unique webhook URL
+// POST /api/onboard    — register a new business
+// GET  /api/businesses — list all businesses
+// GET  /api/industries — list supported industries
+
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: join(__dirname, "../config/.env") });
 
 import express from "express";
 import { createBusiness, getAllBusinesses, INDUSTRY_PROMPTS } from "../business/store.js";
@@ -25,7 +34,6 @@ router.post("/onboard", (req, res) => {
   }
 
   const business = createBusiness(name, industry, qualifyThreshold, whatsappNumber);
-
   console.log(`[Onboarding] New business registered: ${business.name} (${business.id})`);
 
   res.json({
@@ -36,7 +44,6 @@ router.post("/onboard", (req, res) => {
       industry: INDUSTRY_PROMPTS[industry].label,
       qualifyThreshold: business.qualifyThreshold,
       webhookUrl: business.webhookUrl,
-      message: `Your lead pipeline is ready. Send leads to POST /api/lead/${business.id}`
     }
   });
 });
@@ -45,16 +52,16 @@ router.post("/onboard", (req, res) => {
 router.get("/businesses", (req, res) => {
   const businesses = getAllBusinesses().map(b => ({
     ...b,
+    pageToken: undefined, // never expose page tokens to frontend
     industryLabel: INDUSTRY_PROMPTS[b.industry]?.label || b.industry,
   }));
   res.json({ success: true, businesses });
 });
 
-// Get available industries
+// List supported industries
 router.get("/industries", (req, res) => {
   const industries = Object.entries(INDUSTRY_PROMPTS).map(([key, val]) => ({
-    key,
-    label: val.label,
+    key, label: val.label,
   }));
   res.json({ success: true, industries });
 });
