@@ -43,6 +43,11 @@ app.post("/score", gateway.require("$0.01"), async (req, res) => {
   res.json(result);
 });
 
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok', service: 'scoring-agent', ts: new Date().toISOString() });
+});
+
 const PORT = process.env.SCORING_PORT || 3002;
 app.listen(PORT, () => {
   console.log(`[Scoring Agent] Running on port ${PORT} — $0.01 USDC/call`);
