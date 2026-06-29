@@ -1,8 +1,8 @@
 // Lead Intake Webhook
-// POST /api/lead          — generic lead (uses default config from .env)
-// POST /api/lead/:bizId   — business-specific lead (uses business config)
-// GET  /api/webhook       — Facebook Lead Ads verification
-// POST /api/webhook       — Facebook Lead Ads lead delivery
+// POST /api/lead          — generic lead (default config)
+// POST /api/lead/:bizId   — business-specific lead
+// GET  /api/webhook       — Facebook verification challenge
+// POST /api/webhook       — Facebook Lead Ads delivery
 
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
@@ -17,7 +17,7 @@ import { getBusiness, updateBusinessStats } from "../business/store.js";
 
 const router = express.Router();
 
-// ── Generic lead (default config) ──────────────────────────────────────────
+// ── Generic lead ────────────────────────────────────────────────────────────
 router.post("/lead", async (req, res) => {
   try {
     const lead = req.body;
@@ -53,7 +53,7 @@ router.post("/lead/:bizId", async (req, res) => {
   }
 });
 
-// ── Facebook Lead Ads — Verification ───────────────────────────────────────
+// ── Facebook Webhook — Verification ────────────────────────────────────────
 router.get("/webhook", (req, res) => {
   const mode      = req.query["hub.mode"];
   const token     = req.query["hub.verify_token"];
@@ -68,56 +68,63 @@ router.get("/webhook", (req, res) => {
   res.sendStatus(403);
 });
 
-// ── Facebook Lead Ads — Lead Delivery ──────────────────────────────────────
+// ── Facebook Webhook — Lead Delivery ────────────────────────────────────────
 router.post("/webhook", async (req, res) => {
-  // Always respond 200 immediately so Meta doesn't retry
-  res.sendStatus(200);
+  res.sendStatus(200); // always respond immediately
 
   try {
     const body = req.body;
     if (body.object !== "page") return;
 
     for (const entry of body.entry || []) {
+      const pageId = entry.id;
+
       for (const change of entry.changes || []) {
         if (change.field !== "leadgen") continue;
 
         const leadgenId = change.value?.leadgen_id;
         const formId    = change.value?.form_id;
-        const bizId     = change.value?.ad_id; // map ad_id to bizId if set
 
-        console.log(`[Facebook] New leadgen event — leadgen_id: ${leadgenId}`);
+        console.log(`[Facebook] Leadgen event — page: ${pageId}, leadgen_id: ${leadgenId}`);
 
-        // Fetch lead details from Meta Graph API
-        const metaRes = await fetch(
-          `https://graph.facebook.com/v19.0/${leadgenId}?access_token=${process.env.WHATSAPP_TOKEN}`
+        // Find business by pageId so we use their own page token
+        const allBusinesses = (await import("../business/store.js")).getAllBusinesses();
+        const business = allBusinesses.find(b => b.pageId === pageId) || null;
+        const accessToken = business?.pageToken || process.env.WHATSAPP_TOKEN;
+
+        if (!accessToken) {
+          console.warn("[Facebook] No access token available for page:", pageId);
+          continue;
+        }
+
+        // Fetch lead details from Meta Graph API using the business's own page token
+        const metaRes  = await fetch(
+          `https://graph.facebook.com/v19.0/${leadgenId}?access_token=${accessToken}`
         );
         const metaData = await metaRes.json();
 
         if (!metaData.field_data) {
-          console.warn("[Facebook] No field_data in lead response");
+          console.warn("[Facebook] No field_data in response:", JSON.stringify(metaData));
           continue;
         }
 
-        // Parse Meta field_data into a flat lead object
+        // Parse field_data into flat lead object
         const lead = { source: "Facebook Lead Ad", formId };
         for (const field of metaData.field_data) {
           const key = field.name.toLowerCase().replace(/\s+/g, "_");
           lead[key] = field.values?.[0] || null;
         }
 
-        // Normalize common field names
+        // Normalize field names
         lead.name    = lead.full_name || lead.name || null;
         lead.email   = lead.email || null;
         lead.phone   = lead.phone_number || lead.phone || null;
         lead.message = lead.message || lead.comments || null;
 
-        console.log("[Facebook] Lead parsed:", lead.email);
+        console.log("[Facebook] Lead parsed:", lead.email, "→", business?.name || "default");
 
-        // Route to business if bizId found, else use default
-        const business = bizId ? getBusiness(bizId) : null;
-        const result   = await processLead(lead, business || undefined);
-
-        if (business) updateBusinessStats(bizId, result.qualified);
+        const result = await processLead(lead, business || undefined);
+        if (business) updateBusinessStats(business.id, result.qualified);
       }
     }
   } catch (err) {
