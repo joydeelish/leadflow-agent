@@ -4,10 +4,15 @@
 
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { dirname, join, resolve } from "path";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: join(__dirname, "../../config/.env") });
+
+// Try local config path first (dev), fall back to root (Railway)
+const localEnv = resolve(__dirname, "../../config/.env");
+const rootEnv  = resolve(__dirname, "../../.env");
+import { existsSync } from "fs";
+dotenv.config({ path: existsSync(localEnv) ? localEnv : rootEnv });
 
 import express from "express";
 import OpenAI from "openai";
@@ -17,11 +22,15 @@ const app = express();
 app.use(express.json());
 
 const gateway = createAgentGateway("ENRICHMENT_AGENT_WALLET");
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+const openai  = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", service: "enrichment-agent" });
+});
 
 app.post("/enrich", gateway.require("$0.01"), async (req, res) => {
   const lead = req.body;
-  console.log(`[Enrichment] Processing: ${lead.email} | Paid by: ${req.payment?.payer}`);
+  console.log(`[Enrichment] Processing: ${lead.email}`);
 
   try {
     const response = await openai.responses.create({
@@ -46,18 +55,18 @@ app.post("/enrich", gateway.require("$0.01"), async (req, res) => {
 
     const enriched = {
       ...lead,
-      company: enrichmentData.company || null,
-      jobTitle: enrichmentData.jobTitle || null,
-      industry: enrichmentData.industry || null,
+      company:     enrichmentData.company     || null,
+      jobTitle:    enrichmentData.jobTitle    || null,
+      industry:    enrichmentData.industry    || null,
       companySize: enrichmentData.companySize || null,
-      location: enrichmentData.location || lead.location || null,
-      linkedIn: enrichmentData.linkedIn || null,
-      notes: enrichmentData.notes || null,
-      enrichedAt: new Date().toISOString(),
-      enrichedBy: "LeadFlow Enrichment Agent v1",
+      location:    enrichmentData.location    || lead.location || null,
+      linkedIn:    enrichmentData.linkedIn    || null,
+      notes:       enrichmentData.notes       || null,
+      enrichedAt:  new Date().toISOString(),
+      enrichedBy:  "LeadFlow Enrichment Agent v1",
     };
 
-    console.log(`[Enrichment] Done — company: ${enriched.company}, title: ${enriched.jobTitle}`);
+    console.log(`[Enrichment] Done — ${enriched.company} · ${enriched.jobTitle}`);
     res.json(enriched);
   } catch (err) {
     console.error(`[Enrichment] Error: ${err.message}`);
@@ -70,14 +79,9 @@ app.post("/enrich", gateway.require("$0.01"), async (req, res) => {
   }
 });
 
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'enrichment-agent', ts: new Date().toISOString() });
-});
-
-const PORT = process.env.ENRICHMENT_PORT || 3001;
+const PORT = process.env.ENRICHMENT_PORT || process.env.PORT || 3001;
 app.listen(PORT, () => {
-  console.log(`[Enrichment Agent] Running on port ${PORT} — $0.01 USDC/call`);
+  console.log(`[Enrichment Agent] Running on port ${PORT}`);
 });
 
 export { app };
