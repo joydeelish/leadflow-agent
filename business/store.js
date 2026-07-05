@@ -75,12 +75,12 @@ export function createBusiness(name, industry, qualifyThreshold, whatsappNumber)
     qualifyThreshold: Number(qualifyThreshold) || 70,
     whatsappNumber,
     webhookUrl: `/api/lead/${id}`,
-    facebookConnected: false,
-    pageId: null,
-    pageName: null,
     createdAt: new Date().toISOString(),
     leadsProcessed: 0,
     leadsQualified: 0,
+    pageId: null,
+    pageToken: null,
+    facebookConnected: false,
   };
   saveDB(db);
   return db[id];
@@ -103,13 +103,15 @@ export function updateBusinessStats(id, qualified) {
   saveDB(db);
 }
 
-export function updateBusinessFacebook(id, { pageId, pageToken, pageName }) {
+// Called after Facebook OAuth completes
+export function updateBusinessFacebook(id, pageId, pageToken, pageName) {
   const db = loadDB();
-  if (!db[id]) return;
+  if (!db[id]) throw new Error("Business not found: " + id);
+  db[id].pageId           = pageId;
+  db[id].pageToken        = pageToken;
+  db[id].pageName         = pageName;
   db[id].facebookConnected = true;
-  db[id].pageId    = pageId;
-  db[id].pageName  = pageName;
-  db[id].pageToken = pageToken; // stored server-side only, never sent to frontend
+  db[id].facebookConnectedAt = new Date().toISOString();
   saveDB(db);
-  console.log(`[Store] Facebook connected for ${db[id].name} — page: ${pageName}`);
+  return db[id];
 }
