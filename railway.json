@@ -5,7 +5,7 @@
   },
   "deploy": {
     "startCommand": "node index.js",
-    "healthcheckPath": "/api/health",
+    "healthcheckPath": "",
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3
   }
