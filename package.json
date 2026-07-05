@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "start:enrichment": "node agents/enrichment/index.js",
-    "start:scoring": "node agents/scoring/index.js",
+    "start:enrichment": "node enrichment.js",
+    "start:scoring": "node scoring.js",
     "start:all": "concurrently \"npm run start:enrichment\" \"npm run start:scoring\" \"npm start\"",
     "dev": "nodemon index.js",
     "setup:wallet": "node scripts/setupWallet.js"
