@@ -1,13 +1,15 @@
 // Scoring Agent - Seller Side
 // POST /score — payment-gated at $0.01 USDC via Arc Gateway x402
-// Uses scoringPrompt from request body if provided (per-business config)
 
 import dotenv from "dotenv";
 import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { dirname, resolve } from "path";
+import { existsSync } from "fs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-dotenv.config({ path: join(__dirname, "../../config/.env") });
+const localEnv  = resolve(__dirname, "../../config/.env");
+const rootEnv   = resolve(__dirname, "../../.env");
+dotenv.config({ path: existsSync(localEnv) ? localEnv : rootEnv });
 
 import express from "express";
 import OpenAI from "openai";
@@ -19,14 +21,17 @@ app.use(express.json());
 
 const gateway = createAgentGateway("SCORING_AGENT_WALLET");
 const openai  = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
 const DEFAULT_PROMPT = INDUSTRY_PROMPTS.real_estate.prompt;
+
+app.get("/health", (req, res) => {
+  res.json({ status: "ok", service: "scoring-agent" });
+});
 
 app.post("/score", gateway.require("$0.01"), async (req, res) => {
   const { scoringPrompt, ...enrichedLead } = req.body;
   const prompt = scoringPrompt || DEFAULT_PROMPT;
 
-  console.log(`[Scoring] Scoring: ${enrichedLead.email} | Paid by: ${req.payment?.payer}`);
+  console.log(`[Scoring] Scoring: ${enrichedLead.email}`);
 
   const response = await openai.chat.completions.create({
     model: "gpt-4o-mini",
@@ -43,14 +48,9 @@ app.post("/score", gateway.require("$0.01"), async (req, res) => {
   res.json(result);
 });
 
-
-app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'scoring-agent', ts: new Date().toISOString() });
-});
-
-const PORT = process.env.SCORING_PORT || 3002;
+const PORT = process.env.SCORING_PORT || process.env.PORT || 3002;
 app.listen(PORT, () => {
-  console.log(`[Scoring Agent] Running on port ${PORT} — $0.01 USDC/call`);
+  console.log(`[Scoring Agent] Running on port ${PORT}`);
 });
 
 export { app };
