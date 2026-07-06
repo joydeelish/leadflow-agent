@@ -13,6 +13,7 @@ import { createAgentGateway } from "./payments/gatewayMiddleware.js";
 import { INDUSTRY_PROMPTS } from "./business/store.js";
 import intakeRouter from "./webhooks/intake.js";
 import onboardingRouter from "./webhooks/onboarding.js";
+import oauthRouter from "./webhooks/oauth.js";
 import { deliverLeadViaWhatsApp } from "./agents/delivery/whatsapp.js";
 import { pay } from "./payments/arc.js";
 
@@ -42,6 +43,7 @@ app.get("/config.js", (req, res) => {
 
 app.use("/api", intakeRouter);
 app.use("/api", onboardingRouter);
+app.use("/api", oauthRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
